@@ -335,7 +335,6 @@
   <p class="intro-desc" id="introDesc">Relocate with Zamir</p>
   <button type="button" class="intro-skip" id="introSkip">Skip</button>
 </div>
-<script>try{if(sessionStorage.getItem("introSeen"))document.getElementById("intro").remove()}catch(e){}</script>
 
 <div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle" hidden>
   <div class="gate-card">
@@ -955,10 +954,10 @@ function startCarousel(PL_SLIDES){
   root.addEventListener("keydown",e=>{if(e.key==="ArrowRight")step(1);else if(e.key==="ArrowLeft")step(-1);else return;e.preventDefault()});
 }
 
-/* ===== Opening intro: vanilla port of 21st.dev stack-loader (plays once per visit) ===== */
+/* ===== Opening intro: vanilla port of 21st.dev stack-loader (plays on every load) ===== */
 (function(){
   const root=$("#intro"); if(!root) return;
-  const finish=()=>{root.remove();document.body.classList.remove("gated");try{sessionStorage.setItem("introSeen","1")}catch(e){}};
+  const finish=()=>{root.remove();document.body.classList.remove("gated")};
   if(!window.gsap){finish();return}            // library didn't load: just show the site
   document.body.classList.add("gated");        // no scrolling behind the intro
   const EASE="quart.out", STACK_SCALE=0.15, STACK_Y=20, SPREAD_Y=110, TEXT_STAGGER=0.08, FADE=0.8;
