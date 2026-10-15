@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Zamir Bracey | Smyrna &amp; Metro Atlanta Real Estate</title>
-<meta name="description" content="Buy, sell, or rent in Smyrna, Cobb County and metro Atlanta. Free home valuations, local market know-how, and a REALTOR® who picks up the phone.">
+<meta name="description" content="Buy, sell, or rent in Smyrna, Cobb County and metro Atlanta. Free home valuations, local market know-how, and a licensed agent who picks up the phone.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -246,8 +246,10 @@
   .gate{position:fixed;inset:0;z-index:100;overflow-y:auto;padding:max(16px,env(safe-area-inset-top,0px)) 16px 16px;
     background:color-mix(in srgb,var(--bg-2) 62%,transparent);-webkit-backdrop-filter:blur(16px) saturate(.9);backdrop-filter:blur(16px) saturate(.9)}
   .gate[hidden]{display:none}
-  .gate-card{max-width:540px;margin:6vh auto 24px;background:var(--card);border:1px solid var(--line);border-radius:28px;padding:36px;box-shadow:0 30px 80px -30px rgba(28,26,23,.45)}
-  .gate-card h2{font-size:clamp(1.8rem,4vw,2.4rem);margin-top:8px;text-wrap:balance}
+  .gate-card{position:relative;max-width:540px;margin:6vh auto 24px;background:var(--card);border:1px solid var(--line);border-radius:28px;padding:36px;box-shadow:0 30px 80px -30px rgba(28,26,23,.45)}
+  .gate-x{position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+  .gate-x:hover{border-color:var(--gold)}
+  .gate-card h2{padding-right:44px;font-size:clamp(1.8rem,4vw,2.4rem);margin-top:8px;text-wrap:balance}
   .gate-card .sub{color:var(--muted);margin-top:8px}
   .gate-card .btn{width:100%;justify-content:center;margin-top:20px}
   .gate-card .btn[disabled]{opacity:.6;cursor:wait;transform:none}
@@ -302,9 +304,12 @@
 
 <div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle" hidden>
   <div class="gate-card">
+    <button type="button" class="gate-x" id="gateX" aria-label="Close">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
     <p class="eyebrow">Metro Atlanta Real Estate</p>
     <h2 id="gateTitle">Let's set up a time to talk.</h2>
-    <p class="sub">Tell me a little about you and when works best. I'll reach out to confirm your meeting, and the site opens right after.</p>
+    <p class="sub">Tell me a little about you and when works best, and I'll reach out to confirm your meeting.</p>
     <form id="gateForm" novalidate>
       <input class="hp" type="checkbox" name="botcheck" id="g-bot" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="field"><label for="g-name">Full name</label><input id="g-name" autocomplete="name" required></div>
@@ -331,14 +336,14 @@
       <p class="gate-err" id="gateErr" role="alert"></p>
       <p class="gate-fine">I'll only use your info to contact you about your meeting.</p>
     </form>
-    <div class="gate-broker"><span data-k="name">Zamir Bracey</span> · REALTOR® · Licensed with <span data-k="brokerage">Your Brokerage</span>, <span data-k="brokerPhone">Brokerage phone (000) 000-0000</span> · GA License #<span data-k="license">000000</span> · Equal Housing Opportunity</div>
+    <div class="gate-broker"><span data-k="name">Zamir Bracey</span> · Licensed Real Estate Salesperson with <span data-k="brokerage">Your Brokerage</span>, <span data-k="brokerPhone">Brokerage phone (000) 000-0000</span> · GA License #<span data-k="license">000000</span> · Equal Housing Opportunity</div>
   </div>
 </div>
 <div class="toast" id="toast" role="status"></div>
 
 <header id="top">
   <div class="wrap nav">
-    <a href="#top" class="brand"><b data-k="name">Zamir Bracey</b><span>REALTOR® · <span data-k="brokerage">Your Brokerage</span></span></a>
+    <a href="#top" class="brand"><b data-k="name">Zamir Bracey</b><span>Real Estate Agent · <span data-k="brokerage">Your Brokerage</span></span></a>
     <nav class="nav-links">
       <a href="#listings">Homes</a><a href="#sell">Sell</a><a href="#areas">Neighborhoods</a><a href="#calculator">Calculator</a><a href="#about">About</a>
     </nav>
@@ -604,7 +609,7 @@
     <div class="cols">
       <div>
         <h4 data-k="name">Zamir Bracey</h4>
-        <p>REALTOR® serving Smyrna, Cobb County and metro Atlanta.</p>
+        <p>Licensed real estate agent serving metro Atlanta.</p>
         <p style="margin-top:14px;color:#fff"><b data-k="brokerage">Your Brokerage</b><br><span data-k="brokerPhone">Brokerage phone (000) 000-0000</span><br><span data-k="brokerAddress">Brokerage office address</span></p>
       </div>
       <div><h4>Explore</h4><ul><li><a href="#listings">Featured homes</a></li><li><a href="#sell">Home valuation</a></li><li><a href="#calculator">Mortgage calculator</a></li><li><a href="#areas">Neighborhoods</a></li></ul></div>
@@ -738,34 +743,65 @@ function wireForm(form,okEl,build){
 wireForm($("#valForm"),$("#valOk"),()=>["Home valuation request",{Address:$("#v-addr").value,Name:$("#v-name").value,Phone:$("#v-phone").value,Timeline:$("#v-when").value}]);
 wireForm($("#contactForm"),$("#contactOk"),()=>{const it=$('input[name=intent]:checked').value;return [`Website inquiry: ${it}`,{"Interested in":it,Name:$("#c-name").value,Phone:$("#c-phone").value,Email:$("#c-email").value,Message:$("#c-msg").value}]});
 
-/* ===== Meeting gate: the site stays locked until a visitor requests a meeting ===== */
+/* ===== Meeting popup: contacting me (call, email, message) asks for a meeting request first ===== */
 (function(){
   const gate=$("#gate"), form=$("#gateForm"), err=$("#gateErr"), btn=$("#gateBtn");
-  const locked=[$("header"),$("main"),$("footer"),$(".float-call")];
+  const page=[$("header"),$("main"),$("footer"),$(".float-call")];
   let done=false; try{done=localStorage.getItem("meetingRequested")==="1"}catch(e){}
+  let after=null, opener=null;
   const today=new Date(); today.setMinutes(today.getMinutes()-today.getTimezoneOffset());
   $("#g-date").min=today.toISOString().slice(0,10);
-  function lock(on){gate.hidden=!on;document.body.classList.toggle("gated",on);locked.forEach(el=>el&&(el.inert=on))}
-  if(done) return lock(false);
-  lock(true); setTimeout(()=>$("#g-name").focus(),50);
-  const fmtPhone=v=>v.replace(/\D/g,"").length>=10;
+
+  // phone and email stay hidden until a visitor has requested a meeting
+  function showContact(){
+    $$('[data-k="phone"]').forEach(el=>el.textContent=done?AGENT.phone:"Request a meeting to get my number");
+    $$('[data-k="email"]').forEach(el=>el.textContent=done?AGENT.email:"Request a meeting to get my email");
+  }
+  showContact();
+
+  function open(intent,then){
+    after=then||null; opener=document.activeElement;
+    if(intent){const r=$$('input[name="g-intent"]').find(x=>x.value===intent); if(r) r.checked=true}
+    err.style.display="none"; gate.hidden=false; document.body.classList.add("gated"); page.forEach(el=>el&&(el.inert=true));
+    setTimeout(()=>$("#g-name").focus(),50);
+  }
+  function close(){
+    gate.hidden=true; document.body.classList.remove("gated"); page.forEach(el=>el&&(el.inert=false));
+    if(opener&&opener.focus) opener.focus();
+  }
+  $("#gateX").onclick=close;
+  gate.addEventListener("click",e=>{if(e.target===gate) close()});
+  addEventListener("keydown",e=>{if(e.key==="Escape"&&!gate.hidden) close()});
+
+  // every way to reach me goes through the popup until a meeting is requested
+  const intentOf=el=>{const t=(el.dataset.intent||"").toLowerCase(); return t.startsWith("rent")?"Rent":t.startsWith("sell")?"Sell":t?"Buy":null};
+  document.addEventListener("click",e=>{
+    if(done) return;
+    const a=e.target.closest('[data-href="tel"],[data-href="mail"],a[href="#contact"],#plCta');
+    if(!a||gate.contains(a)) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    const kind=a.dataset.href;
+    open(intentOf(a), kind==="tel"||kind==="mail" ? ()=>{location.href=a.href} : ()=>{location.hash="contact"});
+  },true);
+
+  const okPhone=v=>v.replace(/\D/g,"").length>=10;
   form.onsubmit=async e=>{
     e.preventDefault(); err.style.display="none";
     const name=$("#g-name").value.trim(), email=$("#g-email").value.trim(), phone=$("#g-phone").value.trim(), date=$("#g-date").value;
-    const bad=!name?"your name":!/^\S+@\S+\.\S+$/.test(email)?"a valid email":!fmtPhone(phone)?"a phone number with area code":!date?"a day that works for you":"";
+    const bad=!name?"your name":!/^\S+@\S+\.\S+$/.test(email)?"a valid email":!okPhone(phone)?"a phone number with area code":!date?"a day that works for you":"";
     if(bad){err.textContent=`Please add ${bad}.`;err.style.display="block";return}
     if($("#g-bot").checked) return;
     btn.disabled=true; btn.textContent="Sending…";
     const intent=$('input[name="g-intent"]:checked').value;
     try{
       await sendLead(`Meeting request: ${name} (${intent})`,{Name:name,Email:email,Phone:phone,"Looking to":intent,"Preferred day":date,"Preferred time":$("#g-time").value,"Meet by":$("#g-how").value});
-      try{localStorage.setItem("meetingRequested","1")}catch(e){}
-      lock(false); scrollTo(0,0);
-      // carry their details into the contact form in case they write again
+      done=true; try{localStorage.setItem("meetingRequested","1")}catch(e){}
+      showContact(); close(); form.reset();
       $("#c-name").value=name; $("#c-email").value=email; $("#c-phone").value=phone;
-      toast(`Thanks, ${name.split(" ")[0]}! I'll reach out to confirm your meeting.`);
+      toast(`Thanks, ${name.split(" ")[0]}! I'll reach out to confirm your meeting. You can also call or text ${AGENT.phone}.`);
+      if(after) setTimeout(after,600);
     }catch(x){
-      err.textContent=`That didn't go through. Please try again, or call or text ${AGENT.phone}.`; err.style.display="block";
+      err.textContent=`That didn't go through. Please try again in a minute.`; err.style.display="block";
     }finally{ btn.disabled=false; btn.textContent="Request my meeting" }
   };
 })();
