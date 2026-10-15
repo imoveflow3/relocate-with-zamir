@@ -241,6 +241,24 @@
   .search-band .search{margin-top:0}
   @media (max-width:640px){.pl-hero{height:calc(100svh - 72px);min-height:560px}.pl-hero .pl-bar{bottom:92px}.pl-count,.pl-cta{display:none}}
 
+  /* meeting gate: visitors book a meeting before the site opens */
+  body.gated{overflow:hidden}
+  .gate{position:fixed;inset:0;z-index:100;overflow-y:auto;padding:max(16px,env(safe-area-inset-top,0px)) 16px 16px;
+    background:color-mix(in srgb,var(--bg-2) 62%,transparent);-webkit-backdrop-filter:blur(16px) saturate(.9);backdrop-filter:blur(16px) saturate(.9)}
+  .gate[hidden]{display:none}
+  .gate-card{max-width:540px;margin:6vh auto 24px;background:var(--card);border:1px solid var(--line);border-radius:28px;padding:36px;box-shadow:0 30px 80px -30px rgba(28,26,23,.45)}
+  .gate-card h2{font-size:clamp(1.8rem,4vw,2.4rem);margin-top:8px;text-wrap:balance}
+  .gate-card .sub{color:var(--muted);margin-top:8px}
+  .gate-card .btn{width:100%;justify-content:center;margin-top:20px}
+  .gate-card .btn[disabled]{opacity:.6;cursor:wait;transform:none}
+  .gate-err{display:none;margin-top:12px;font-size:.9rem;color:#b4442c}
+  .gate-fine{margin-top:14px;font-size:.78rem;color:var(--muted);text-align:center}
+  .gate-broker{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);font-size:.78rem;color:var(--muted);text-align:center;line-height:1.5}
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;z-index:90;background:var(--ink);color:var(--bg);padding:14px 20px;border-radius:14px;font-size:.92rem;max-width:calc(100% - 32px);transition:opacity .3s,transform .3s;pointer-events:none}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  @media (max-width:640px){.gate-card{padding:24px;margin-top:2vh}.toast{bottom:92px}}
+
   .float-call{display:none}
   .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
   .reveal.in{opacity:1;transform:none}
@@ -281,6 +299,42 @@
 </style>
 </head>
 <body>
+
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle" hidden>
+  <div class="gate-card">
+    <p class="eyebrow">Metro Atlanta Real Estate</p>
+    <h2 id="gateTitle">Let's set up a time to talk.</h2>
+    <p class="sub">Tell me a little about you and when works best. I'll reach out to confirm your meeting, and the site opens right after.</p>
+    <form id="gateForm" novalidate>
+      <input class="hp" type="checkbox" name="botcheck" id="g-bot" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="field"><label for="g-name">Full name</label><input id="g-name" autocomplete="name" required></div>
+      <div class="row">
+        <div class="field"><label for="g-email">Email</label><input id="g-email" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="g-phone">Phone</label><input id="g-phone" type="tel" autocomplete="tel" required placeholder="(404) 555-0123"></div>
+      </div>
+      <div class="field"><label>I'm looking to</label>
+        <div class="seg">
+          <input type="radio" name="g-intent" id="gi1" value="Buy" checked><label for="gi1">Buy</label>
+          <input type="radio" name="g-intent" id="gi2" value="Sell"><label for="gi2">Sell</label>
+          <input type="radio" name="g-intent" id="gi3" value="Rent"><label for="gi3">Rent</label>
+          <input type="radio" name="g-intent" id="gi4" value="Invest"><label for="gi4">Invest</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="g-date">Preferred day</label><input id="g-date" type="date" required></div>
+        <div class="field"><label for="g-time">Preferred time</label>
+          <select id="g-time"><option>Morning (9–12)</option><option>Afternoon (12–5)</option><option>Evening (5–8)</option></select></div>
+      </div>
+      <div class="field"><label for="g-how">Meet by</label>
+        <select id="g-how"><option>Phone call</option><option>Video call</option><option>In person</option></select></div>
+      <button class="btn btn-gold" type="submit" id="gateBtn">Request my meeting</button>
+      <p class="gate-err" id="gateErr" role="alert"></p>
+      <p class="gate-fine">I'll only use your info to contact you about your meeting.</p>
+    </form>
+    <div class="gate-broker"><span data-k="name">Zamir Bracey</span> · REALTOR® · Licensed with <span data-k="brokerage">Your Brokerage</span>, <span data-k="brokerPhone">Brokerage phone (000) 000-0000</span> · GA License #<span data-k="license">000000</span> · Equal Housing Opportunity</div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
 
 <header id="top">
   <div class="wrap nav">
@@ -416,7 +470,7 @@
         <div class="field"><label for="v-when">When are you thinking of selling?</label>
           <select id="v-when"><option>Just curious</option><option>Within 3 months</option><option>3–6 months</option><option>6–12 months</option></select></div>
         <button class="btn btn-gold" type="submit">Get my free valuation</button>
-        <p class="form-ok" id="valOk">Thanks! Your email app should open with the details filled in. Just hit send.</p>
+        <p class="form-ok" id="valOk" role="status"></p>
       </form>
     </div>
   </div>
@@ -538,7 +592,7 @@
         <div class="field"><label for="c-email">Email</label><input id="c-email" type="email" required></div>
         <div class="field"><label for="c-msg">Message</label><textarea id="c-msg" rows="4" placeholder="Area, budget, timeline, anything that helps"></textarea></div>
         <button class="btn btn-gold" type="submit" style="margin-top:18px;width:100%;justify-content:center">Send message</button>
-        <p class="form-ok" id="contactOk" style="color:var(--gold-dk)">Thanks! Your email app should open with your message filled in. Just hit send.</p>
+        <p class="form-ok" id="contactOk" role="status" style="color:var(--gold-dk)"></p>
       </form>
     </div>
   </div>
@@ -578,7 +632,10 @@ const AGENT = {
   brokerAddress: "Brokerage office address",
   license: "000000",
   // Optional: paste your brokerage's IDX/home-search link; the hero search will open it.
-  searchUrl: ""
+  searchUrl: "",
+  // Web3Forms access key (free, from web3forms.com). Every form on the site, including the
+  // meeting gate, emails the visitor's details to the address this key was created for.
+  formKey: ""
 };
 
 /* Sample listings: replace with your real ones */
@@ -656,9 +713,62 @@ $$("[data-intent]").forEach(a=>a.addEventListener("click",()=>setIntent(a.datase
 $$("[data-area]").forEach(a=>a.addEventListener("click",()=>{$("#c-msg").value=`I'd like to know what's available in ${a.dataset.area}.`}));
 
 /* Forms: open the visitor's email app addressed to you (swap for Formspree etc. later) */
-function mail(subject,lines){location.href=`mailto:${AGENT.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join("\n"))}`}
-$("#valForm").onsubmit=e=>{e.preventDefault();mail("Home valuation request",[`Address: ${$("#v-addr").value}`,`Name: ${$("#v-name").value}`,`Phone: ${$("#v-phone").value}`,`Timeline: ${$("#v-when").value}`]);$("#valOk").style.display="block"};
-$("#contactForm").onsubmit=e=>{e.preventDefault();const it=$('input[name=intent]:checked').value;mail(`Website inquiry: ${it}`,[`Interested in: ${it}`,`Name: ${$("#c-name").value}`,`Phone: ${$("#c-phone").value}`,`Email: ${$("#c-email").value}`,"",$("#c-msg").value]);$("#contactOk").style.display="block"};
+/* Leads: posted to Web3Forms, which emails them to you. Without a key (local testing) it opens an email draft instead. */
+async function sendLead(subject,fields){
+  if(window.PREVIEW_ONLY) return true;
+  if(!AGENT.formKey){
+    location.href=`mailto:${AGENT.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(Object.entries(fields).map(([k,v])=>k+": "+v).join("\n"))}`;
+    return true;
+  }
+  const r=await fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},
+    body:JSON.stringify({access_key:AGENT.formKey,subject,from_name:"Website lead",...fields})});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok||!j.success) throw new Error(j.message||"Send failed");
+  return true;
+}
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),5000)}
+function wireForm(form,okEl,build){
+  form.onsubmit=async e=>{
+    e.preventDefault(); const btn=form.querySelector("button[type=submit]"); btn.disabled=true;
+    try{ const [subject,fields]=build(); await sendLead(subject,fields); okEl.textContent="Thanks! I got it and will get back to you within one business day."; okEl.style.display="block"; form.reset() }
+    catch(err){ okEl.textContent=`That didn't go through. Please call or text ${AGENT.phone}.`; okEl.style.display="block" }
+    finally{ btn.disabled=false }
+  };
+}
+wireForm($("#valForm"),$("#valOk"),()=>["Home valuation request",{Address:$("#v-addr").value,Name:$("#v-name").value,Phone:$("#v-phone").value,Timeline:$("#v-when").value}]);
+wireForm($("#contactForm"),$("#contactOk"),()=>{const it=$('input[name=intent]:checked').value;return [`Website inquiry: ${it}`,{"Interested in":it,Name:$("#c-name").value,Phone:$("#c-phone").value,Email:$("#c-email").value,Message:$("#c-msg").value}]});
+
+/* ===== Meeting gate: the site stays locked until a visitor requests a meeting ===== */
+(function(){
+  const gate=$("#gate"), form=$("#gateForm"), err=$("#gateErr"), btn=$("#gateBtn");
+  const locked=[$("header"),$("main"),$("footer"),$(".float-call")];
+  let done=false; try{done=localStorage.getItem("meetingRequested")==="1"}catch(e){}
+  const today=new Date(); today.setMinutes(today.getMinutes()-today.getTimezoneOffset());
+  $("#g-date").min=today.toISOString().slice(0,10);
+  function lock(on){gate.hidden=!on;document.body.classList.toggle("gated",on);locked.forEach(el=>el&&(el.inert=on))}
+  if(done) return lock(false);
+  lock(true); setTimeout(()=>$("#g-name").focus(),50);
+  const fmtPhone=v=>v.replace(/\D/g,"").length>=10;
+  form.onsubmit=async e=>{
+    e.preventDefault(); err.style.display="none";
+    const name=$("#g-name").value.trim(), email=$("#g-email").value.trim(), phone=$("#g-phone").value.trim(), date=$("#g-date").value;
+    const bad=!name?"your name":!/^\S+@\S+\.\S+$/.test(email)?"a valid email":!fmtPhone(phone)?"a phone number with area code":!date?"a day that works for you":"";
+    if(bad){err.textContent=`Please add ${bad}.`;err.style.display="block";return}
+    if($("#g-bot").checked) return;
+    btn.disabled=true; btn.textContent="Sending…";
+    const intent=$('input[name="g-intent"]:checked').value;
+    try{
+      await sendLead(`Meeting request: ${name} (${intent})`,{Name:name,Email:email,Phone:phone,"Looking to":intent,"Preferred day":date,"Preferred time":$("#g-time").value,"Meet by":$("#g-how").value});
+      try{localStorage.setItem("meetingRequested","1")}catch(e){}
+      lock(false); scrollTo(0,0);
+      // carry their details into the contact form in case they write again
+      $("#c-name").value=name; $("#c-email").value=email; $("#c-phone").value=phone;
+      toast(`Thanks, ${name.split(" ")[0]}! I'll reach out to confirm your meeting.`);
+    }catch(x){
+      err.textContent=`That didn't go through. Please try again, or call or text ${AGENT.phone}.`; err.style.display="block";
+    }finally{ btn.disabled=false; btn.textContent="Request my meeting" }
+  };
+})();
 
 /* ===== Polaroid line carousel (vanilla port of 21st.dev polaroid-line-carousel) ===== */
 const PL_SLIDES = [

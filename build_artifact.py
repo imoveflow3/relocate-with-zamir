@@ -10,10 +10,8 @@ for i in ids:
 out = re.sub(r'https://images\.unsplash\.com/(photo-[0-9a-f]+-[0-9a-f]+)\?[^"\s]*', lambda m: imgs[m.group(1)], src)
 out = re.sub(r'https://images\.unsplash\.com/\$\{(\w+)\.img\}\?[^"`\s]*', r'${IMG[\1.img]}', out)
 out = out.replace("<script>\n/* ===== EDIT", "<script>const IMG=" + json.dumps(imgs) + ";</script>\n<script>\n/* ===== EDIT", 1)
-# forms can't send email from inside an artifact
-out = out.replace("function mail(subject,lines){location.href=", "function mail(subject,lines){return;location.href=")
-out = out.replace("Thanks! Your email app should open with the details filled in. Just hit send.", "Preview only. On the live site this form sends the request to your email.")
-out = out.replace("Thanks! Your email app should open with your message filled in. Just hit send.", "Preview only. On the live site this form sends the message to your email.")
+# forms can't reach outside servers from inside an artifact; submitting just unlocks/confirms
+out = out.replace("<script>const IMG=", "<script>window.PREVIEW_ONLY=true;const IMG=", 1)
 for pat in [r"<!doctype html>\s*", r"<html[^>]*>\s*", r"</html>\s*", r"<head>\s*", r"</head>\s*", r"<body>\s*", r"</body>\s*",
             r'<meta charset="utf-8">\s*', r'<meta name="viewport"[^>]*>\s*']:
     out = re.sub(pat, "", out, count=1, flags=re.I)
