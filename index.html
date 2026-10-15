@@ -231,7 +231,7 @@
   .pl-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
   @keyframes pl-in{from{transform:translateY(100%);opacity:0}to{transform:none;opacity:1}}
   @media (prefers-reduced-motion:reduce){.pl-cap>*{animation:none}.pl-print{transition:none}}
-    .pl-hero{height:calc(100svh - 72px);min-height:600px;max-height:980px}
+    .pl-hero{height:calc(88svh - 72px);min-height:560px;max-height:900px}
   .pl-copy{position:absolute;left:0;right:0;top:clamp(28px,5vh,56px);text-align:center;padding:0 16px;pointer-events:none;z-index:30}
   .pl-copy h1{font-size:clamp(2.1rem,4.6vw,3.8rem);margin-top:10px;text-wrap:balance}
   .pl-copy h1 em{font-style:italic;color:var(--gold-dk)}
@@ -239,7 +239,7 @@
   .pl-cta{flex:none;font-size:.88rem;padding:10px 18px}
   .search-band{padding:40px 0 0}
   .search-band .search{margin-top:0}
-  @media (max-width:640px){.pl-hero{height:calc(100svh - 72px);min-height:560px}.pl-hero .pl-bar{bottom:92px}.pl-count,.pl-cta{display:none}}
+  @media (max-width:640px){.pl-hero{height:calc(84svh - 72px);min-height:520px}.pl-hero .pl-bar{bottom:20px}.pl-count,.pl-cta{display:none}}
 
   /* meeting gate: visitors book a meeting before the site opens */
   body.gated{overflow:hidden}
@@ -396,7 +396,7 @@
 
 <main>
 <!-- HERO: polaroid line carousel (ported from 21st.dev polaroid-line-carousel) -->
-<section class="pl-root pl-hero" id="pl" role="region" aria-roledescription="carousel" aria-label="Home styles" tabindex="0" data-drag="0" data-y0="0.34">
+<section class="pl-root pl-hero" id="pl" role="region" aria-roledescription="carousel" aria-label="Home styles" tabindex="0" data-drag="0" data-y0="0.27">
   <div class="pl-copy">
     <p class="eyebrow">Metro Atlanta</p>
     <h1>Find the place you'll call <em>home.</em></h1>
