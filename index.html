@@ -261,6 +261,22 @@
   .toast.show{opacity:1;transform:translate(-50%,0)}
   @media (max-width:640px){.gate-card{padding:24px;margin-top:2vh}.toast{bottom:92px}}
 
+  /* opening intro (ported from 21st.dev stack-loader): photos stack, spread, then fade into the hero */
+  .intro{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:0 2.5vw;background:var(--bg-2);color:var(--ink);overflow:hidden}
+  .intro-row{display:flex;width:100%;align-items:center;justify-content:space-between}
+  .intro-t{opacity:0;font:500 clamp(13px,1.15vw,18px)/1 var(--sans);letter-spacing:.22em;text-transform:uppercase}
+  .intro-imgs{position:relative;width:clamp(5rem,6.5vw,18rem);height:clamp(5rem,6.5vw,18rem)}
+  .intro-img{position:absolute;inset:0;overflow:hidden;border-radius:3px;opacity:0;box-shadow:0 10px 30px -12px rgba(28,26,23,.45)}
+  .intro-img img{width:100%;height:100%;object-fit:cover;max-width:none}
+  .intro-desc{position:absolute;bottom:3vw;left:50%;transform:translateX(-50%);width:40vw;text-align:center;opacity:0;
+    font:italic 400 clamp(18px,1.8vw,28px)/1.15 var(--serif)}
+  .intro-skip{position:absolute;top:max(16px,env(safe-area-inset-top,0px));right:16px;border:1px solid var(--line);background:transparent;color:var(--muted);
+    font:500 .8rem var(--sans);letter-spacing:.08em;padding:8px 14px;border-radius:999px;cursor:pointer}
+  .intro-skip:hover{color:var(--ink);border-color:var(--gold)}
+  @media (max-width:1025px){.intro{padding:0 5vw}.intro-row{flex-direction:column;justify-content:center;gap:33vh}.intro-imgs{z-index:9;width:11vw;height:11vw}
+    .intro-t{font-size:2.4vw}.intro-desc{width:68vw;font-size:2.6vw}}
+  @media (max-width:768px){.intro{padding:0 6vw}.intro-row{gap:70vw}.intro-imgs{width:19vw;height:19vw}.intro-t{font-size:4vw}.intro-desc{bottom:8vw;width:90%;font-size:4.4vw}}
+
   .float-call{display:none}
   .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
   .reveal.in{opacity:1;transform:none}
@@ -301,6 +317,25 @@
 </style>
 </head>
 <body>
+
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="intro-row">
+    <p class="intro-t" id="introT1">Metro Atlanta</p>
+    <div class="intro-imgs" id="introImgs">
+      <div class="intro-img"><img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=500&h=500&q=70" alt=""></div>
+      <div class="intro-img"><img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=500&h=500&q=70" alt=""></div>
+      <div class="intro-img"><img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=500&h=500&q=70" alt=""></div>
+      <div class="intro-img"><img src="https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&w=500&h=500&q=70" alt=""></div>
+      <div class="intro-img"><img src="https://images.unsplash.com/photo-1576941089067-2de3c901e126?auto=format&fit=crop&w=500&h=500&q=70" alt=""></div>
+      <div class="intro-img"><img src="https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=500&h=500&q=70" alt=""></div>
+      <div class="intro-img"><img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=500&h=500&q=70" alt=""></div>
+    </div>
+    <p class="intro-t" id="introT2">Real Estate</p>
+  </div>
+  <p class="intro-desc" id="introDesc"><span data-k="name">Zamir Bracey</span>, your agent for buying, selling and renting</p>
+  <button type="button" class="intro-skip" id="introSkip">Skip</button>
+</div>
+<script>try{if(sessionStorage.getItem("introSeen"))document.getElementById("intro").remove()}catch(e){}</script>
 
 <div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle" hidden>
   <div class="gate-card">
@@ -625,6 +660,8 @@
 
 <div class="float-call"><a class="btn btn-dark" data-href="tel">Call</a><a class="btn btn-gold" href="#contact">Message me</a></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/SplitText.min.js"></script>
 <script>
 /* ===== EDIT YOUR INFO HERE ===== */
 const AGENT = {
@@ -936,6 +973,55 @@ const PL_SLIDES = [
   },{passive:false});
   root.querySelectorAll("[data-step]").forEach(b=>b.addEventListener("click",()=>step(+b.dataset.step)));
   root.addEventListener("keydown",e=>{if(e.key==="ArrowRight")step(1);else if(e.key==="ArrowLeft")step(-1);else return;e.preventDefault()});
+})();
+
+/* ===== Opening intro: vanilla port of 21st.dev stack-loader (plays once per visit) ===== */
+(function(){
+  const root=$("#intro"); if(!root) return;
+  const finish=()=>{root.remove();document.body.classList.remove("gated");try{sessionStorage.setItem("introSeen","1")}catch(e){}};
+  if(!window.gsap){finish();return}            // library didn't load: just show the site
+  document.body.classList.add("gated");        // no scrolling behind the intro
+  const EASE="quart.out", STACK_SCALE=0.15, STACK_Y=20, SPREAD_Y=110, TEXT_STAGGER=0.08, FADE=0.8;
+  const imgs=$$(".intro-img"), side=[$("#introT1"),$("#introT2")], desc=$("#introDesc"), wrap=$("#introImgs");
+  const n=imgs.length, spreadY=i=>n===1?0:-(SPREAD_Y*(n-1))/2+i*SPREAD_Y;
+  let tl;
+  const out=()=>gsap.to(root,{opacity:0,duration:FADE,ease:EASE,onComplete:finish});
+  $("#introSkip").onclick=()=>{tl&&tl.kill();gsap.to(root,{opacity:0,duration:.35,onComplete:finish})};
+
+  function play(){
+    if(matchMedia("(prefers-reduced-motion: reduce)").matches){
+      gsap.set(imgs,{yPercent:spreadY,zIndex:i=>i});
+      tl=gsap.timeline({defaults:{ease:"power2.inOut"},onComplete:finish});
+      tl.to(imgs,{opacity:1,duration:.7,stagger:{each:.06,from:"center"}})
+        .to([...side,desc],{opacity:1,duration:.55},"-=0.35")
+        .to([...side,desc],{opacity:0,duration:.5},"+=0.55")
+        .to(imgs,{opacity:0,duration:FADE,stagger:{each:.04,from:"edges"}},"-=0.15")
+        .to(root,{opacity:0,duration:FADE},"-=0.2");
+      return;
+    }
+    const S=window.SplitText;
+    const t1=S?new S(side[0],{type:"words"}).words:[side[0]], t2=S?new S(side[1],{type:"words"}).words:[side[1]];
+    const lines=S?new S(desc,{type:"words,lines"}).lines:[desc];
+    const textAll=[...t1,...t2,...lines];
+    gsap.set(textAll,{rotateX:90,opacity:0,transformPerspective:1000,transformOrigin:"50% 100%"});
+    gsap.set(desc,{opacity:1});
+    tl=gsap.timeline();
+    tl.fromTo(wrap,{yPercent:500,opacity:0},{yPercent:0,opacity:1,duration:.5,ease:EASE});
+    tl.set(side,{opacity:1},"<");
+    tl.to(imgs,{opacity:1,duration:.5,ease:EASE},"<");
+    tl.to(textAll,{rotateX:0,opacity:1,stagger:TEXT_STAGGER,ease:EASE},"<+0.5");
+    imgs.forEach((el,i)=>tl.to(el,{zIndex:i,duration:.1,ease:EASE},i*.2));
+    // stack: each photo grows and rises a little more than the last
+    tl.to(imgs,{scale:i=>1+i*STACK_SCALE,yPercent:i=>-(i*STACK_Y),duration:1,stagger:{each:.01,from:"end"},ease:"power3.inOut"},"<");
+    // spread: back to size, fanned out in a vertical line
+    tl.to(imgs,{scale:1,yPercent:spreadY,duration:1,stagger:{each:.01,from:"end"},ease:"power3.inOut"},"+=0.2");
+    tl.to(lines,{rotateX:90,transformOrigin:"top center",opacity:0,duration:1,stagger:TEXT_STAGGER,ease:EASE},"<-0.1");
+    tl.to([...t1,...t2],{opacity:0,duration:.5,rotateX:90,transformOrigin:"top center",stagger:TEXT_STAGGER,ease:EASE});
+    tl.to(imgs,{opacity:0,duration:FADE,stagger:{each:.08,from:"end"},onComplete:out},"<+0.2");
+  }
+  // give the photos a moment to load so the stack isn't blank
+  const ready=Promise.all($$(".intro-img img").map(im=>im.complete?0:new Promise(r=>{im.onload=im.onerror=r})));
+  Promise.race([ready,new Promise(r=>setTimeout(r,1500))]).then(play);
 })();
 
 /* scroll reveal */
