@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Relocate with Zamir | Metro Atlanta Real Estate</title>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://images.unsplash.com; connect-src https://script.google.com https://script.googleusercontent.com https://api.github.com https://api.web3forms.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://images.unsplash.com https://raw.githubusercontent.com; connect-src https://script.google.com https://script.googleusercontent.com https://api.github.com https://api.web3forms.com; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="description" content="Buy, sell, or rent in Smyrna, Cobb County and metro Atlanta. Free home valuations, local market know-how, and a licensed agent who picks up the phone.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -909,7 +909,7 @@ async function loadPhotos(){
       const base=f.name.replace(/\.[^.]+$/,"").replace(/^\d+[\s._-]*/,"").replace(/[_]+/g," ").trim();
       const camera=/^(img|dsc|pxl|photo|image)[\s_-]?\d/i.test(base)||!base;
       const [title,...rest]=camera?["Metro Atlanta home"]:base.split(/\s+-\s+/);
-      return {src:`photos/${encodeURIComponent(f.name)}`,title,caption:rest.join(" - ")};
+      return {src:`https://raw.githubusercontent.com/${PHOTO_REPO}/main/photos/${encodeURIComponent(f.name)}`,title,caption:rest.join(" - ")};
     });
   }catch(e){ return null }
 }

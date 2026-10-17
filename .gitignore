@@ -1,3 +1,5 @@
 artifact.html
 .DS_Store
 .claude/
+.vercel
+.env*

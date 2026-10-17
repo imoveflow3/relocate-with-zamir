@@ -1,0 +1,8 @@
+apps-script
+build_artifact.py
+artifact.html
+.claude
+photos
+*.md
+.env*
+.vercel
