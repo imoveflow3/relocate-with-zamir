@@ -305,6 +305,12 @@
   .sv-opts.grid .sv-opt[aria-pressed="true"]::after{content:none}
   .sv-go{width:100%;justify-content:center;margin-top:18px}
   .field[hidden]{display:none}
+  .sv-combo{position:relative}
+  .sv-list{margin-top:6px;list-style:none;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);max-height:228px;overflow-y:auto;padding:6px}
+  .sv-list[hidden]{display:none}
+  .sv-li{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:11px 12px;border-radius:10px;cursor:pointer}
+  .sv-li small{color:var(--muted);font-size:.78rem;white-space:nowrap}
+  .sv-li[aria-selected="true"],.sv-li:hover{background:var(--bg-2)}
   .sv-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
   .sv-chips:empty{display:none}
   .sv-chip{border:1px solid var(--ink);background:var(--bg-2);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:.9rem;cursor:pointer}
@@ -1082,7 +1088,7 @@ function startCarousel(PL_SLIDES){
     {id:"budget",q:"What's your price range?",when:buying,opts:["Under $250K","$250K – $400K","$400K – $600K","$600K – $850K","$850K and up","Not sure yet"]},
     {id:"rent",q:"What's your monthly rent budget?",when:a=>a.intent==="Renting",opts:["Under $1,500","$1,500 – $2,000","$2,000 – $2,500","$2,500 – $3,000","$3,000 and up"]},
     {id:"beds",q:a=>sellOnly(a)?"How many bedrooms does your home have?":"How many bedrooms do you need?",grid:true,opts:["1","2","3","4","5+"]},
-    {id:"areas",q:"Where are you looking?",sub:"Pick a city from the list. You can add as many as you like.",type:"areas",when:a=>!sellOnly(a)},
+    {id:"areas",q:"Where are you looking?",sub:"Type a city, then tap it in the list. You can add as many as you like.",type:"areas",when:a=>!sellOnly(a)},
     {id:"address",q:"Where's the home you're selling?",sub:"A street address or just the neighborhood is fine.",type:"text",when:selling,placeholder:"123 Main St, Smyrna"},
     {id:"contact",q:a=>sellOnly(a)?"Last step. Where should I send your home's value?":"Last step. Where should I send homes that fit?",sub:"I'll reach out within one business day.",type:"contact"}
   ];
@@ -1109,6 +1115,20 @@ function startCarousel(PL_SLIDES){
     "Walton":["Monroe","Social Circle"],
     "Spalding":["Griffin"]
   };
+  const ALL=[{city:"Anywhere in metro Atlanta",county:""},...Object.entries(METRO).flatMap(([c,l])=>l.map(city=>({city,county:c})))];
+  const POPULAR=["Anywhere in metro Atlanta","Atlanta","Marietta","Smyrna","Sandy Springs","Alpharetta","Decatur","Lawrenceville"];
+  function lev(a,b){const d=Array.from({length:a.length+1},(_,i)=>[i]);for(let j=1;j<=b.length;j++)d[0][j]=j;
+    for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[a.length][b.length]}
+  function matchCities(q){
+    q=q.toLowerCase().replace(/\s+/g," ").trim();
+    if(!q) return POPULAR.map(c=>ALL.find(m=>m.city===c));
+    return ALL.map(m=>{
+      const c=m.city.toLowerCase(), words=c.split(/[\s-]+/);
+      let score=c.startsWith(q)?0:words.some(w=>w.startsWith(q))?1:(q.length>=3&&c.includes(q))||(q.length>=3&&m.county.toLowerCase().startsWith(q))?2:9;
+      if(score===9&&q.length>=3){const dist=Math.min(lev(q,c.slice(0,q.length)),...words.map(w=>lev(q,w.slice(0,q.length))));if(dist<=(q.length>5?2:1))score=3+dist}
+      return {...m,score};
+    }).filter(m=>m.score<9).sort((a,b)=>a.score-b.score||a.city.localeCompare(b.city)).slice(0,8);
+  }
   const visible=()=>STEPS.filter(s=>!s.when||s.when(A));
   const val=(x)=>typeof x==="function"?x(A):x;
 
@@ -1138,22 +1158,44 @@ function startCarousel(PL_SLIDES){
       body.append(box,goBtn);
     }else if(st.type==="areas"){
       const picked=new Set(A.areas||[]);
-      const f=document.createElement("div");f.className="field";
-      const groups=Object.entries(METRO).map(([c,list])=>`<optgroup label="${c} County">${list.map(x=>`<option>${x}</option>`).join("")}</optgroup>`).join("");
-      f.innerHTML=`<label for="sv-area">City or area</label><select id="sv-area"><option value="">Choose a city…</option><option>Anywhere in metro Atlanta</option>${groups}<option value="__other">Somewhere else (type it)</option></select>`;
-      const other=document.createElement("div");other.className="field";other.hidden=true;
-      other.innerHTML=`<label for="sv-area-other">Type the area</label><div style="display:flex;gap:8px"><input id="sv-area-other" placeholder="e.g. Grant Park"><button type="button" class="btn btn-ghost" id="sv-area-add">Add</button></div>`;
+      const f=document.createElement("div");f.className="field sv-combo";
+      f.innerHTML=`<label for="sv-area">Search a city or area</label>
+        <input id="sv-area" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="sv-area-list" autocomplete="off" placeholder="Start typing, e.g. Marietta">
+        <ul id="sv-area-list" role="listbox" class="sv-list" hidden></ul>`;
+      const inp=f.querySelector("input"), list=f.querySelector("ul");
       const chips=document.createElement("div");chips.className="sv-chips";
       const draw=()=>{chips.innerHTML="";picked.forEach(x=>{const c=document.createElement("button");c.type="button";c.className="sv-chip";c.textContent=x+" ×";c.setAttribute("aria-label","Remove "+x);c.onclick=()=>{picked.delete(x);A.areas=[...picked];draw()};chips.append(c)})};
-      const add=x=>{x=x.trim();if(x){picked.add(x);A.areas=[...picked];draw();err.style.display="none"}};
-      const sel=f.querySelector("select");
-      sel.onchange=()=>{if(sel.value==="__other"){other.hidden=false;other.querySelector("input").focus()}else{other.hidden=true;add(sel.value)}sel.value=""};
-      const oin=other.querySelector("input");
-      other.querySelector("button").onclick=()=>{add(oin.value);oin.value="";other.hidden=true};
-      oin.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();other.querySelector("button").click()}};
+      const add=x=>{x=x.trim();if(x){picked.add(x);A.areas=[...picked];draw();err.style.display="none"}inp.value="";closeList();inp.focus()};
+      let items=[], hi=0;
+      function show(){
+        const q=inp.value.trim();
+        items=matchCities(q).filter(m=>!picked.has(m.city));
+        // offer to add their own text only when nothing on the list is a close spelling match
+        if(q&&!items.some(m=>m.score<=2)) items.push({city:q,county:"",custom:true});
+        if(!items.length){closeList();return}
+        hi=0; list.innerHTML="";
+        items.forEach((m,i)=>{
+          const li=document.createElement("li");li.role="option";li.id="sv-opt-"+i;li.className="sv-li";
+          const name=document.createElement("span");name.textContent=m.custom?`Add “${m.city}”`:m.city;
+          const sub=document.createElement("small");sub.textContent=m.custom?"Not on the list":m.county?m.county+" County":"";
+          li.append(name,sub);
+          li.onmousedown=e=>{e.preventDefault();add(m.city)};
+          list.append(li);
+        });
+        list.hidden=false;inp.setAttribute("aria-expanded","true");mark();
+      }
+      function mark(){[...list.children].forEach((li,i)=>li.setAttribute("aria-selected",i===hi));inp.setAttribute("aria-activedescendant","sv-opt-"+hi);list.children[hi]?.scrollIntoView({block:"nearest"})}
+      function closeList(){list.hidden=true;inp.setAttribute("aria-expanded","false");inp.removeAttribute("aria-activedescendant")}
+      inp.oninput=show; inp.onfocus=show; inp.onblur=()=>setTimeout(closeList,120);
+      inp.onkeydown=e=>{
+        if(e.key==="ArrowDown"){e.preventDefault();if(list.hidden)show();else{hi=Math.min(hi+1,items.length-1);mark()}}
+        else if(e.key==="ArrowUp"){e.preventDefault();hi=Math.max(hi-1,0);mark()}
+        else if(e.key==="Enter"){e.preventDefault();if(!list.hidden&&items[hi])add(items[hi].city);else if(!inp.value&&picked.size)goBtn.click()}
+        else if(e.key==="Escape"&&!list.hidden){e.preventDefault();e.stopPropagation();closeList()}
+      };
       const goBtn=document.createElement("button");goBtn.type="button";goBtn.className="btn btn-dark sv-go";goBtn.textContent="Continue";
       goBtn.onclick=()=>{if(!picked.size){err.textContent="Choose at least one city or area.";err.style.display="block";return}next()};
-      body.append(f,other,chips,goBtn); draw();
+      body.append(f,chips,goBtn); draw(); setTimeout(()=>inp.focus(),60);
     }else if(st.type==="text"){
       const f=document.createElement("div");f.className="field";
       f.innerHTML=`<label for="sv-${st.id}">Address or neighborhood</label><input id="sv-${st.id}" autocomplete="street-address">`;
