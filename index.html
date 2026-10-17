@@ -449,7 +449,7 @@
   <div class="wrap nav">
     <a href="#top" class="brand"><b data-k="brand">Relocate with Zamir</b><span><span data-k="name">Zamir Bracey</span> · <span data-k="brokerage">Virtual Properties Realty</span></span></a>
     <nav class="nav-links">
-      <a href="#pl">Homes</a><a href="#areas">Neighborhoods</a><a href="#calculator">Calculator</a><a href="#about">About</a>
+      <a href="#pl">Homes</a><a href="#areas">Neighborhoods</a><a href="#about">About</a>
     </nav>
     <div class="nav-cta">
       <a class="btn btn-ghost" data-href="tel">Call</a>
@@ -460,7 +460,7 @@
     </div>
   </div>
   <div class="mobile-menu" id="mobileMenu">
-    <a href="#pl">Homes</a><a href="#areas">Neighborhoods</a><a href="#calculator">Calculator</a><a href="#about">About</a><a href="#contact">Contact</a>
+    <a href="#pl">Homes</a><a href="#areas">Neighborhoods</a><a href="#about">About</a><a href="#contact">Contact</a>
   </div>
 </header>
 
@@ -531,7 +531,7 @@
       </div>
       <div class="svc reveal">
         <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 4 7v6c0 4.5 3.4 7.8 8 9 4.6-1.2 8-4.5 8-9V7z"/><path d="m9 12 2 2 4-4"/></svg></div>
-        <h3>First-time buyers</h3><p>No dumb questions. Down-payment help programs, what closing costs actually are, and a plan that fits your budget.</p><a href="#calculator">Run the numbers →</a>
+        <h3>First-time buyers</h3><p>No dumb questions. Down-payment help programs, what closing costs actually are, and a plan that fits your budget.</p><a href="#contact" data-intent="Buying">Ask me anything →</a>
       </div>
     </div>
   </div>
@@ -563,31 +563,6 @@
       <div class="tabs" role="tablist"><button class="active" data-p="buy">Buying</button><button data-p="sell">Selling</button></div>
     </div>
     <div class="steps" id="steps"></div>
-  </div>
-</section>
-
-<!-- CALCULATOR -->
-<section id="calculator" class="alt">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <div><p class="eyebrow">Mortgage calculator</p><h2>What would my payment be?</h2></div>
-      <p class="lead">Move the sliders for a rough monthly estimate. Your lender will give you the exact number.</p>
-    </div>
-    <div class="calc reveal">
-      <div class="calc-in">
-        <div class="rng"><div class="top"><span>Home price</span><b id="o-price"></b></div><input type="range" id="c-price" min="100000" max="1500000" step="5000" value="375000"></div>
-        <div class="rng"><div class="top"><span>Down payment</span><b id="o-down"></b></div><input type="range" id="c-down" min="0" max="50" step="0.5" value="10"></div>
-        <div class="rng"><div class="top"><span>Interest rate</span><b id="o-rate"></b></div><input type="range" id="c-rate" min="2" max="10" step="0.125" value="6.5"></div>
-        <div class="rng"><div class="top"><span>Loan term</span><b id="o-term"></b></div><input type="range" id="c-term" min="10" max="30" step="5" value="30"></div>
-      </div>
-      <div class="calc-out">
-        <p class="eyebrow">Estimated monthly payment</p>
-        <div class="big" id="o-total" style="margin-top:10px">$0</div>
-        <div class="bars" id="bars"></div>
-        <p class="note" style="text-align:left">Includes estimated property tax (~1.0%/yr) and insurance (~$140/mo). Not a loan offer.</p>
-        <a href="#contact" class="btn btn-dark" style="margin-top:18px;align-self:flex-start" data-intent="Buying">Get pre-approval help</a>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -669,7 +644,7 @@
         <p>Licensed real estate agent serving metro Atlanta.</p>
         <p style="margin-top:14px;color:#fff"><b data-k="brokerage">Virtual Properties Realty</b><br><a data-href="brokerTel" data-k="brokerPhone">(770) 495-5050</a></p>
       </div>
-      <div><h4>Explore</h4><ul><li><a href="#pl">Home photos</a></li><li><a href="#calculator">Mortgage calculator</a></li><li><a href="#areas">Neighborhoods</a></li></ul></div>
+      <div><h4>Explore</h4><ul><li><a href="#pl">Home photos</a></li><li><a href="#areas">Neighborhoods</a></li></ul></div>
       <div><h4>Services</h4><ul><li><a href="#services">Buying</a></li><li><a href="#services">Selling</a></li><li><a href="#services">Rentals &amp; leasing</a></li><li><a href="#services">First-time buyers</a></li></ul></div>
       <div><h4>Contact</h4><ul><li><a data-href="tel" data-k="phone">(000) 000-0000</a></li><li><a data-href="mail" data-k="email">you@example.com</a></li><li>Smyrna, Georgia</li></ul></div>
     </div>
@@ -730,17 +705,6 @@ const money=n=>"$"+Math.round(n).toLocaleString();
 function renderSteps(k){$("#steps").innerHTML=STEPS[k].map(([t,d])=>`<div class="step"><h3>${t}</h3><p>${d}</p></div>`).join("")}
 renderSteps("buy");
 $$(".tabs button").forEach(b=>b.onclick=()=>{$$(".tabs button").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderSteps(b.dataset.p)});
-
-function calc(){
-  const P=+$("#c-price").value, d=+$("#c-down").value, r=+$("#c-rate").value, t=+$("#c-term").value;
-  const loan=P*(1-d/100), mr=r/1200, n=t*12;
-  const pi=mr?loan*mr/(1-Math.pow(1+mr,-n)):loan/n, tax=P*0.01/12, ins=140;
-  $("#o-price").textContent=money(P); $("#o-down").textContent=d+"% · "+money(P*d/100);
-  $("#o-rate").textContent=r.toFixed(3).replace(/0+$/,"").replace(/\.$/,"")+"%"; $("#o-term").textContent=t+" years";
-  const total=pi+tax+ins; $("#o-total").textContent=money(total);
-  $("#bars").innerHTML=[["Principal & interest",pi],["Property tax",tax],["Insurance",ins]].map(([k,v])=>`<div class="bar"><span>${k}</span><i style="width:${Math.max(3,v/total*100)}%"></i><span>${money(v)}</span></div>`).join("");
-}
-$$("#calculator input").forEach(i=>i.oninput=calc); calc();
 
 /* Hero search: opens your IDX link if set, otherwise pre-fills the contact form */
 $$(".hero-tags .chip").forEach(c=>c.onclick=()=>{$("#searchQ").value=c.dataset.q;$("#searchQ").focus()});
