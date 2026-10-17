@@ -17,6 +17,12 @@ var HEADERS = [
   "Photo they tapped", "Preferred day", "Preferred time", "Meet by",
   "Address", "Timeline", "Interested in", "Message", "Notes", "ID"
 ];
+// Security limits
+var MIN_KEY_LENGTH = 12;      // admin keys shorter than this are refused
+var MAX_FAILS = 10;           // wrong admin keys allowed per 15 minutes before lockout
+var MAX_LEADS_PER_MIN = 20;   // flood guard for the public form endpoint
+var MAX_EMAILS_PER_DAY = 80;  // stays under Gmail's daily send quota
+
 var STATUSES = ["New", "Contacted", "Meeting set", "Showing homes", "Under contract", "Closed", "Not a fit"];
 
 function doGet() {
@@ -29,15 +35,54 @@ function doPost(e) {
   catch (err) { return json_({ ok: false, error: "Bad request" }); }
 
   if (data.action === "list" || data.action === "update") {
-    if (!data.key || data.key !== prop_("ADMIN_KEY")) return json_({ ok: false, error: "Wrong admin key" });
+    var auth = checkKey_(data.key);
+    if (!auth.ok) return json_(auth);
     return data.action === "list" ? json_({ ok: true, statuses: STATUSES, leads: list_() })
                                   : json_(update_(data.id, data.status, data.notes));
   }
+  if (data.action) return json_({ ok: false, error: "Bad request" });
   if (data.botcheck) return json_({ ok: true }); // spam bot filled the hidden box
   return json_(add_(data));
 }
 
+// Admin key check with lockout after repeated wrong guesses.
+function checkKey_(given) {
+  var cache = CacheService.getScriptCache();
+  var fails = Number(cache.get("adminFails") || 0);
+  if (fails >= MAX_FAILS) return { ok: false, error: "Too many wrong tries. Wait 15 minutes and try again." };
+  var real = String(prop_("ADMIN_KEY") || "");
+  if (real.length < MIN_KEY_LENGTH) {
+    return { ok: false, error: "Your ADMIN_KEY is too short. Set it to at least " + MIN_KEY_LENGTH + " characters in Project Settings." };
+  }
+  if (!sameText_(String(given || ""), real)) {
+    cache.put("adminFails", String(fails + 1), 900);
+    Utilities.sleep(700);
+    return { ok: false, error: "Wrong admin key" };
+  }
+  return { ok: true };
+}
+
+// Compares every character so timing doesn't reveal how much of a guess was right.
+function sameText_(a, b) {
+  var diff = a.length ^ b.length;
+  for (var i = 0; i < Math.max(a.length, b.length); i++) {
+    diff |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
+  }
+  return diff === 0;
+}
+
 function add_(data) {
+  // a real lead has a name and a way to reach them
+  var name = clean_(data.Name), email = clean_(data.Email), phone = clean_(data.Phone);
+  if (!name || (!email && !phone)) return { ok: false, error: "Please add your name and a phone or email." };
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, error: "Please check your email address." };
+
+  var cache = CacheService.getScriptCache();
+  var minuteKey = "leads-" + Math.floor(Date.now() / 60000);
+  var thisMinute = Number(cache.get(minuteKey) || 0);
+  if (thisMinute >= MAX_LEADS_PER_MIN) return { ok: false, error: "Busy right now. Please try again in a minute." };
+  cache.put(minuteKey, String(thisMinute + 1), 120);
+
   var lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
@@ -55,7 +100,10 @@ function add_(data) {
     lock.releaseLock();
   }
   var to = prop_("NOTIFY_EMAIL");
-  if (to) {
+  var dayKey = "emails-" + Utilities.formatDate(new Date(), "America/New_York", "yyyy-MM-dd");
+  var sentToday = Number(cache.get(dayKey) || 0);
+  if (to && sentToday < MAX_EMAILS_PER_DAY) {
+    cache.put(dayKey, String(sentToday + 1), 21600);
     var lines = HEADERS.filter(function (h) { return data[h]; })
                        .map(function (h) { return h + ": " + clean_(data[h]); });
     MailApp.sendEmail({

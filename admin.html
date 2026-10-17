@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; base-uri 'none'; form-action 'none'">
+<script>if (top !== self) { document.documentElement.style.display = "none"; top.location = self.location; }</script>
 <title>Leads | Relocate with Zamir</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -167,7 +170,7 @@
     <h1>Your leads</h1>
     <p class="muted" style="margin-top:6px">Enter your admin key to see everyone who filled out a form on your site.</p>
     <div class="field"><label for="key">Admin key</label><input id="key" type="password" autocomplete="current-password" required></div>
-    <label class="check"><input type="checkbox" id="remember" checked> Keep me signed in on this device</label>
+    <label class="check"><input type="checkbox" id="remember"> Keep me signed in on this device for 30 days</label>
     <button class="btn btn-dark" type="submit" style="width:100%;margin-top:18px">Open my leads</button>
     <p class="err" id="loginErr" hidden></p>
     <p class="notice" id="notConnected" hidden>Your Google Sheet isn't connected yet, so there are no real leads to show. <a href="#demo" id="demoLink">Preview with sample data</a></p>
@@ -252,7 +255,7 @@ async function load(){
   if(demo){leads=sample();render();return}
   $("#refresh").disabled=true;
   try{ const j=await api({action:"list",key}); leads=j.leads||[]; render(); }
-  catch(e){ if(/key/i.test(e.message)){signOut();showErr("That admin key didn't work. Check it and try again.")} else alert2("Couldn't load leads: "+e.message) }
+  catch(e){ if(/key|tries/i.test(e.message)){signOut();showErr(friendly(e.message))} else alert2("Couldn't load leads: "+e.message) }
   finally{ $("#refresh").disabled=false }
 }
 function alert2(msg){$("#updated").textContent=msg}
@@ -378,7 +381,18 @@ $("#csv").onclick=()=>{
 /* ---------- sign in / out ---------- */
 function show(view){$("#loginView").hidden=view!=="login";$("#dash").hidden=view!=="dash";$("#barActions").hidden=view!=="dash";$("#demoBanner").hidden=!demo}
 function showErr(m){const e=$("#loginErr");e.textContent=m;e.hidden=false}
-function signOut(){key="";demo=false;try{localStorage.removeItem("adminKey")}catch(e){};if(location.hash==="#demo")history.replaceState(null,"",location.pathname);show("login");$("#notConnected").hidden=!!SHEET_URL}
+function saveKey(k,remember){try{if(remember)localStorage.setItem("adminKey",JSON.stringify({k,exp:Date.now()+30*864e5}));else sessionStorage.setItem("adminKey",k)}catch(e){}}
+function savedKey(){
+  try{
+    const s=sessionStorage.getItem("adminKey"); if(s) return s;
+    const l=JSON.parse(localStorage.getItem("adminKey")||"null");
+    if(l&&l.k&&l.exp>Date.now()) return l.k;
+    localStorage.removeItem("adminKey");
+  }catch(e){}
+  return "";
+}
+const friendly=m=>m==="Wrong admin key"?"That admin key didn't work. Check it and try again.":m;
+function signOut(){key="";demo=false;try{localStorage.removeItem("adminKey");sessionStorage.removeItem("adminKey")}catch(e){};if(location.hash==="#demo")history.replaceState(null,"",location.pathname);show("login");$("#notConnected").hidden=!!SHEET_URL}
 $("#signout").onclick=signOut;
 $("#refresh").onclick=load;
 $("#loginForm").onsubmit=async e=>{
@@ -386,16 +400,16 @@ $("#loginForm").onsubmit=async e=>{
   if(!SHEET_URL){showErr("Your Google Sheet isn't connected yet. Use the sample preview below for now.");return}
   key=$("#key").value.trim(); if(!key) return;
   try{ const j=await api({action:"list",key}); leads=j.leads||[];
-    if($("#remember").checked){try{localStorage.setItem("adminKey",key)}catch(e){}}
-    show("dash"); render();
-  }catch(err){ showErr(/key/i.test(err.message)?"That admin key didn't work. Check it and try again.":"Couldn't reach your Google Sheet: "+err.message) }
+    saveKey(key,$("#remember").checked);
+    $("#key").value=""; show("dash"); render();
+  }catch(err){ showErr(/key|tries/i.test(err.message)?friendly(err.message):"Couldn't reach your Google Sheet: "+err.message) }
 };
 function startDemo(){demo=true;show("dash");load()}
 $("#demoLink").onclick=e=>{e.preventDefault();history.replaceState(null,"","#demo");startDemo()};
 
 (function boot(){
   if(location.hash==="#demo") return startDemo();
-  let saved=""; try{saved=localStorage.getItem("adminKey")||""}catch(e){}
+  const saved=savedKey();
   if(SHEET_URL&&saved){key=saved;show("dash");load();return}
   show("login"); $("#notConnected").hidden=!!SHEET_URL;
 })();
