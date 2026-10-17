@@ -728,8 +728,10 @@ const AGENT = {
   license: "000000",
   // Optional: paste your brokerage's IDX/home-search link; the hero search will open it.
   searchUrl: "",
-  // Web3Forms access key (free, from web3forms.com). Every form on the site, including the
-  // meeting gate, emails the visitor's details to the address this key was created for.
+  // Google Sheet lead inbox (apps-script/README.md): paste the web app URL here. Every form
+  // on the site saves a row to your sheet, emails you, and shows up on admin.html.
+  sheetUrl: "",
+  // Optional alternative: a Web3Forms access key (email only, no admin page).
   formKey: ""
 };
 
@@ -784,9 +786,16 @@ $$("[data-intent]").forEach(a=>a.addEventListener("click",()=>setIntent(a.datase
 $$("[data-area]").forEach(a=>a.addEventListener("click",()=>{$("#c-msg").value=`I'd like to know what's available in ${a.dataset.area}.`}));
 
 /* Forms: open the visitor's email app addressed to you (swap for Formspree etc. later) */
-/* Leads: posted to Web3Forms, which emails them to you. Without a key (local testing) it opens an email draft instead. */
+/* Leads: saved to your Google Sheet (and emailed to you). Falls back to Web3Forms, then to an email draft. */
+const leadType=subject=>/^Home survey/.test(subject)?"Survey":/^Meeting/.test(subject)?"Meeting":/valuation/i.test(subject)?"Valuation":"Contact";
 async function sendLead(subject,fields){
   if(window.PREVIEW_ONLY) return true;
+  if(AGENT.sheetUrl){
+    const r=await fetch(AGENT.sheetUrl,{method:"POST",body:JSON.stringify({subject,Type:leadType(subject),...fields})});
+    const j=await r.json().catch(()=>({}));
+    if(!j.ok) throw new Error(j.error||"Send failed");
+    return true;
+  }
   if(!AGENT.formKey){
     location.href=`mailto:${AGENT.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(Object.entries(fields).map(([k,v])=>k+": "+v).join("\n"))}`;
     return true;

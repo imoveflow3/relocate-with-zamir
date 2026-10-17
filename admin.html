@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Leads | Relocate with Zamir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Layout: a lead desk. Summary numbers, then what people want, then every lead in a table you can open. */
+  :root{
+    --bg:#fbf9f5; --bg-2:#f3eee5; --card:#ffffff; --ink:#1c1a17; --muted:#6b645a; --line:#e6dfd2;
+    --gold:#b08d4a; --gold-dk:#8c6d33; --bar:#b08d4a; --track:#f1ebe0;
+    --new:#1d5fa8; --new-bg:#e6effa; --warm:#9a5b12; --warm-bg:#fbefdc; --good:#2f7a43; --good-bg:#e4f3e8; --off:#6b645a; --off-bg:#efebe4;
+    --serif:"Fraunces",Georgia,serif; --sans:"Inter",system-ui,-apple-system,sans-serif;
+    --radius:18px; --shadow:0 1px 2px rgba(28,26,23,.04),0 12px 32px -14px rgba(28,26,23,.16);
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#14130f; --bg-2:#1c1a16; --card:#211f1a; --ink:#f3eee5; --muted:#a9a194; --line:#34302a;
+    --gold:#d1ae6a; --gold-dk:#e0c286; --bar:#c9a560; --track:#2a2721;
+    --new:#8cb8ec; --new-bg:#1d2a3a; --warm:#e7b061; --warm-bg:#3a2c18; --good:#7fcb93; --good-bg:#1c3324; --off:#a9a194; --off-bg:#2a2721;
+    color-scheme:dark}}
+  :root[data-theme="dark"]{
+    --bg:#14130f; --bg-2:#1c1a16; --card:#211f1a; --ink:#f3eee5; --muted:#a9a194; --line:#34302a;
+    --gold:#d1ae6a; --gold-dk:#e0c286; --bar:#c9a560; --track:#2a2721;
+    --new:#8cb8ec; --new-bg:#1d2a3a; --warm:#e7b061; --warm-bg:#3a2c18; --good:#7fcb93; --good-bg:#1c3324; --off:#a9a194; --off-bg:#2a2721;
+    color-scheme:dark}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:var(--serif);font-weight:500;line-height:1.15}
+  button,input,select,textarea{font:inherit;color:inherit}
+  a{color:inherit}
+  .wrap{max-width:1200px;margin:0 auto;padding-inline:max(16px,3vw)}
+  .eyebrow{font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-dk);font-weight:600}
+  .muted{color:var(--muted)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 18px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-weight:600;font-size:.9rem;cursor:pointer;text-decoration:none}
+  .btn:hover{border-color:var(--gold)}
+  .btn-dark{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .btn-gold{background:var(--gold);color:#fff;border-color:var(--gold)}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  [hidden]{display:none!important}
+
+  header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;height:64px}
+  .brand{text-decoration:none}
+  .brand b{font-family:var(--serif);font-size:1.15rem;font-weight:600;display:block;line-height:1.1}
+  .brand span{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .bar-actions{display:flex;gap:8px;align-items:center}
+  .updated{font-size:.8rem;color:var(--muted)}
+
+  /* sign in */
+  .login{max-width:420px;margin:12vh auto 0;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:32px;box-shadow:var(--shadow)}
+  .login h1{font-size:1.9rem;margin-top:8px}
+  .field{display:flex;flex-direction:column;gap:6px;margin-top:14px}
+  .field label{font-size:.82rem;color:var(--muted);font-weight:500}
+  .field input,.field select,.field textarea{padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);outline:none}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold)}
+  .check{display:flex;gap:8px;align-items:center;margin-top:12px;font-size:.88rem;color:var(--muted)}
+  .err{color:#b4442c;font-size:.88rem;margin-top:10px}
+  .notice{background:var(--warm-bg);color:var(--ink);border:1px solid color-mix(in srgb,var(--warm) 30%,transparent);border-radius:14px;padding:12px 16px;font-size:.9rem;margin-top:20px}
+
+  /* summary */
+  main{padding-block:28px 64px}
+  .head{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap}
+  .head h1{font-size:clamp(1.8rem,3.4vw,2.5rem)}
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px}
+  .tile{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px}
+  .tile .k{font-size:.82rem;color:var(--muted)}
+  .tile .v{font-family:var(--serif);font-size:2.1rem;line-height:1.1;margin-top:4px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+  .tile .v.small{font-size:1.5rem}
+  .tile .s{font-size:.8rem;color:var(--muted);margin-top:2px}
+
+  /* charts: single-series horizontal bars, one hue */
+  .charts{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:14px}
+  .chart{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;min-width:0}
+  .chart h3{font-family:var(--sans);font-size:.95rem;font-weight:600}
+  .chart .sub{font-size:.78rem;color:var(--muted)}
+  .rows{display:grid;gap:9px;margin-top:14px}
+  .row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;cursor:default;padding:2px 0}
+  .row .lab{font-size:.84rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .num{font-size:.84rem;font-variant-numeric:tabular-nums;color:var(--muted)}
+  .row .track{grid-column:1/-1;height:8px;background:var(--track);border-radius:999px;overflow:hidden}
+  .row .fill{height:100%;background:var(--bar);border-radius:0 4px 4px 0;transition:width .5s ease}
+  .row:hover .fill{background:var(--gold-dk)}
+  .row.empty .lab{color:var(--muted)}
+  .tip{position:fixed;z-index:50;pointer-events:none;background:var(--ink);color:var(--bg);font-size:.8rem;padding:6px 10px;border-radius:8px;white-space:nowrap;transform:translate(-50%,calc(-100% - 10px));opacity:0;transition:opacity .12s}
+  .tip.on{opacity:1}
+
+  /* filters + table */
+  .tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:28px}
+  .tools h2{font-size:1.4rem;margin-right:auto}
+  .tools input,.tools select{padding:9px 14px;border:1px solid var(--line);border-radius:999px;background:var(--card);outline:none}
+  .tools input{min-width:0;width:220px}
+  .tablewrap{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:.88rem}
+  th{text-align:left;font-weight:600;font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:12px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  tbody tr{cursor:pointer}
+  tbody tr:hover{background:var(--bg-2)}
+  tbody tr:last-child td{border-bottom:0}
+  td.name b{font-weight:600;display:block}
+  td.name span{color:var(--muted);font-size:.8rem;white-space:nowrap}
+  td.areas{max-width:220px}
+  .nowrap{white-space:nowrap}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:.76rem;font-weight:600;white-space:nowrap}
+  .pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+  .st-new{color:var(--new);background:var(--new-bg)}
+  .st-warm{color:var(--warm);background:var(--warm-bg)}
+  .st-good{color:var(--good);background:var(--good-bg)}
+  .st-off{color:var(--off);background:var(--off-bg)}
+  .type{font-size:.76rem;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 7px;white-space:nowrap}
+  .empty-state{padding:44px 20px;text-align:center;color:var(--muted)}
+  .empty-state b{display:block;font-family:var(--serif);font-weight:500;font-size:1.3rem;color:var(--ink);margin-bottom:4px}
+
+  /* lead drawer */
+  .scrim{position:fixed;inset:0;background:rgba(20,18,15,.4);z-index:40}
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:min(460px,100%);background:var(--card);z-index:41;overflow-y:auto;padding:24px 24px calc(24px + env(safe-area-inset-bottom,0px));box-shadow:-20px 0 60px -20px rgba(0,0,0,.35)}
+  .drawer h2{font-size:1.8rem;margin-top:6px;padding-right:44px;overflow-wrap:anywhere}
+  .x{position:absolute;top:18px;right:18px;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);cursor:pointer;display:grid;place-items:center}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+  dl{display:grid;grid-template-columns:130px minmax(0,1fr);gap:10px 14px;margin-top:22px;font-size:.9rem}
+  dt{color:var(--muted)}
+  dd{overflow-wrap:anywhere}
+  .save-row{display:flex;gap:10px;align-items:center;margin-top:14px}
+  .saved{font-size:.85rem;color:var(--good)}
+
+  @media (max-width:980px){.tiles,.charts{grid-template-columns:1fr 1fr}}
+  @media (max-width:640px){
+    .tiles{gap:10px}.tile{padding:14px}.tile .v{font-size:1.7rem}.tile .v.small{font-size:1.2rem}
+    .charts{grid-template-columns:1fr}
+    .tools input{width:100%;order:3}
+    .updated{display:none}
+    .bar-actions .btn{padding:8px 12px;font-size:.82rem;white-space:nowrap}
+    .brand b{font-size:1rem;white-space:nowrap}
+    /* table becomes a list of cards */
+    table,tbody,tr,td{display:block;width:100%}
+    thead{display:none}
+    tbody tr{padding:14px 16px;border-bottom:1px solid var(--line)}
+    td{border:0;padding:2px 0}
+    td.areas{max-width:none}
+    td[data-l]::before{content:attr(data-l) ": ";color:var(--muted)}
+    td.st{margin-top:6px}
+    dl{grid-template-columns:110px minmax(0,1fr)}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="./"><b>Relocate with Zamir</b><span>Leads</span></a>
+    <div class="bar-actions" id="barActions" hidden>
+      <span class="updated" id="updated"></span>
+      <button class="btn" id="refresh" type="button">Refresh</button>
+      <button class="btn" id="signout" type="button">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<!-- sign in -->
+<section class="wrap" id="loginView" hidden>
+  <form class="login" id="loginForm">
+    <p class="eyebrow">Admin</p>
+    <h1>Your leads</h1>
+    <p class="muted" style="margin-top:6px">Enter your admin key to see everyone who filled out a form on your site.</p>
+    <div class="field"><label for="key">Admin key</label><input id="key" type="password" autocomplete="current-password" required></div>
+    <label class="check"><input type="checkbox" id="remember" checked> Keep me signed in on this device</label>
+    <button class="btn btn-dark" type="submit" style="width:100%;margin-top:18px">Open my leads</button>
+    <p class="err" id="loginErr" hidden></p>
+    <p class="notice" id="notConnected" hidden>Your Google Sheet isn't connected yet, so there are no real leads to show. <a href="#demo" id="demoLink">Preview with sample data</a></p>
+  </form>
+</section>
+
+<!-- dashboard -->
+<main class="wrap" id="dash" hidden>
+  <p class="notice" id="demoBanner" hidden style="margin-top:0;margin-bottom:18px"><b>Sample data.</b> These people are made up to show how the page works. Your real leads appear here once your Google Sheet is connected.</p>
+  <div class="head">
+    <div><p class="eyebrow">Lead desk</p><h1>Who's reaching out</h1></div>
+    <button class="btn" id="csv" type="button">Download CSV</button>
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><div class="k">Total leads</div><div class="v" id="kTotal">0</div><div class="s" id="kTotalS"></div></div>
+    <div class="tile"><div class="k">Last 7 days</div><div class="v" id="kWeek">0</div><div class="s" id="kWeekS"></div></div>
+    <div class="tile"><div class="k">Waiting on you</div><div class="v" id="kNew">0</div><div class="s">Status still "New"</div></div>
+    <div class="tile"><div class="k">Most wanted area</div><div class="v small" id="kArea">–</div><div class="s" id="kAreaS"></div></div>
+  </div>
+
+  <div class="charts">
+    <div class="chart"><h3>Looking to</h3><p class="sub">Leads by goal</p><div class="rows" id="cIntent"></div></div>
+    <div class="chart"><h3>Price range</h3><p class="sub">Buyers' budgets</p><div class="rows" id="cBudget"></div></div>
+    <div class="chart"><h3>Bedrooms</h3><p class="sub">How many they need</p><div class="rows" id="cBeds"></div></div>
+    <div class="chart"><h3>Top areas</h3><p class="sub">Cities picked most</p><div class="rows" id="cAreas"></div></div>
+  </div>
+
+  <div class="tools">
+    <h2>Everyone</h2>
+    <input id="q" type="search" placeholder="Search name, phone, city…" aria-label="Search leads">
+    <select id="fType" aria-label="Filter by form"><option value="">All forms</option><option>Survey</option><option>Meeting</option><option>Valuation</option><option>Contact</option></select>
+    <select id="fStatus" aria-label="Filter by status"><option value="">Any status</option></select>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Received</th><th>Name</th><th>Form</th><th>Looking to</th><th>Price range</th><th>Beds</th><th>Areas</th><th>Status</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="empty-state" id="empty" hidden><b>No leads yet</b>When someone fills out the survey or a contact form, they'll show up here.</div>
+  </div>
+</main>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dName" hidden>
+  <button class="x" id="dClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  <p class="eyebrow" id="dWhen"></p>
+  <h2 id="dName"></h2>
+  <div class="actions" id="dActions"></div>
+  <dl id="dFields"></dl>
+  <div class="field"><label for="dStatus">Status</label><select id="dStatus"></select></div>
+  <div class="field"><label for="dNotes">Your notes</label><textarea id="dNotes" rows="4" placeholder="Called Tuesday, wants a 3-bed near Marietta Square…"></textarea></div>
+  <div class="save-row"><button class="btn btn-dark" id="dSave" type="button">Save</button><span class="saved" id="dSaved" role="status"></span></div>
+</aside>
+<div class="tip" id="tip" role="tooltip"></div>
+
+<script>
+/* Paste the same Google Sheet web app URL you put in index.html (AGENT.sheetUrl). */
+const SHEET_URL = "";
+
+const STATUSES=["New","Contacted","Meeting set","Showing homes","Under contract","Closed","Not a fit"];
+const STATUS_CLASS={"New":"st-new","Contacted":"st-warm","Meeting set":"st-warm","Showing homes":"st-warm","Under contract":"st-good","Closed":"st-good","Not a fit":"st-off"};
+const BUDGETS=["Under $250K","$250K – $400K","$400K – $600K","$600K – $850K","$850K and up","Not sure yet"];
+const BEDS=["1","2","3","4","5+"];
+const INTENTS={"Buy":"Buying a home","Sell":"Selling my home","Rent":"Renting","Invest":"Investing"};
+const DETAIL=["Type","Status","Phone","Email","Looking to","Price range","Rent budget","Bedrooms","Areas","Home to sell","Photo they tapped","Preferred day","Preferred time","Meet by","Address","Timeline","Interested in","Message"];
+
+const $=s=>document.querySelector(s);
+let leads=[], key="", demo=false, current=null;
+
+/* ---------- data ---------- */
+const clean=v=>String(v??"").replace(/^'/,"").trim();
+const intentOf=l=>{const v=clean(l["Looking to"]||l["Interested in"]);return INTENTS[v]||({"Buying":"Buying a home","Selling":"Selling my home","Renting / Leasing":"Renting","Just questions":"Questions"})[v]||v||"Not said"};
+const areasOf=l=>clean(l.Areas).split(",").map(a=>a.trim()).filter(Boolean);
+async function api(body){
+  const r=await fetch(SHEET_URL,{method:"POST",body:JSON.stringify(body)});
+  const j=await r.json();
+  if(!j.ok) throw new Error(j.error||"Something went wrong");
+  return j;
+}
+async function load(){
+  if(demo){leads=sample();render();return}
+  $("#refresh").disabled=true;
+  try{ const j=await api({action:"list",key}); leads=j.leads||[]; render(); }
+  catch(e){ if(/key/i.test(e.message)){signOut();showErr("That admin key didn't work. Check it and try again.")} else alert2("Couldn't load leads: "+e.message) }
+  finally{ $("#refresh").disabled=false }
+}
+function alert2(msg){$("#updated").textContent=msg}
+
+/* ---------- render ---------- */
+function render(){
+  const now=Date.now(), week=leads.filter(l=>now-new Date(l.Date)<7*864e5);
+  const prevWeek=leads.filter(l=>{const d=now-new Date(l.Date);return d>=7*864e5&&d<14*864e5}).length;
+  $("#kTotal").textContent=leads.length;
+  $("#kTotalS").textContent=leads.length?`Since ${fmtDate(leads[leads.length-1].Date,true)}`:"";
+  $("#kWeek").textContent=week.length;
+  $("#kWeekS").textContent=`${prevWeek} the week before`;
+  $("#kNew").textContent=leads.filter(l=>(clean(l.Status)||"New")==="New").length;
+  const areaCounts=count(leads.flatMap(areasOf).filter(a=>a!=="Anywhere in metro Atlanta"));
+  const top=Object.entries(areaCounts).sort((a,b)=>b[1]-a[1])[0];
+  $("#kArea").textContent=top?top[0]:"–"; $("#kAreaS").textContent=top?`${top[1]} ${top[1]===1?"lead":"leads"}`:"No areas picked yet";
+
+  const intents=count(leads.map(intentOf));
+  bars("#cIntent",Object.entries(intents).sort((a,b)=>b[1]-a[1]),"leads");
+  const bud=count(leads.map(l=>clean(l["Price range"])).filter(Boolean));
+  bars("#cBudget",BUDGETS.map(b=>[b,bud[b]||0]),"buyers");
+  const beds=count(leads.map(l=>clean(l.Bedrooms)).filter(Boolean));
+  bars("#cBeds",BEDS.map(b=>[b+(b==="1"?" bedroom":" bedrooms"),beds[b]||0]),"leads");
+  bars("#cAreas",Object.entries(count(leads.flatMap(areasOf))).sort((a,b)=>b[1]-a[1]).slice(0,7),"leads");
+
+  $("#updated").textContent=demo?"":"Updated "+new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
+  table();
+}
+function count(arr){const o={};arr.forEach(x=>o[x]=(o[x]||0)+1);return o}
+function bars(sel,entries,noun){
+  const box=$(sel); box.innerHTML="";
+  const max=Math.max(1,...entries.map(e=>e[1])), total=entries.reduce((s,e)=>s+e[1],0);
+  if(!entries.length||!total){const p=document.createElement("p");p.className="sub";p.style.marginTop="14px";p.textContent="No answers yet";box.append(p);return}
+  entries.forEach(([label,n])=>{
+    const row=document.createElement("div");row.className="row"+(n?"":" empty");row.tabIndex=0;
+    const lab=document.createElement("span");lab.className="lab";lab.textContent=label;
+    const num=document.createElement("span");num.className="num";num.textContent=n;
+    const track=document.createElement("div");track.className="track";
+    const fill=document.createElement("div");fill.className="fill";fill.style.width=(n/max*100)+"%";
+    track.append(fill); row.append(lab,num,track);
+    const tipText=`${label}: ${n} ${n===1?noun.replace(/s$/,""):noun} (${Math.round(n/total*100)}%)`;
+    row.setAttribute("aria-label",tipText);
+    row.onmouseenter=row.onfocus=()=>showTip(row,tipText); row.onmouseleave=row.onblur=hideTip;
+    box.append(row);
+  });
+}
+const tip=$("#tip");
+function showTip(el,text){const r=el.getBoundingClientRect();tip.textContent=text;tip.style.left=Math.min(innerWidth-90,Math.max(90,r.left+r.width/2))+"px";tip.style.top=r.top+"px";tip.classList.add("on")}
+function hideTip(){tip.classList.remove("on")}
+
+function fmtDate(d,short){const t=new Date(d);if(isNaN(t))return "";return short?t.toLocaleDateString([], {month:"short",day:"numeric"}):t.toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}
+function td(text,cls,label){const c=document.createElement("td");if(cls)c.className=cls;if(label)c.dataset.l=label;c.textContent=text;return c}
+function pill(status){const s=document.createElement("span");s.className="pill "+(STATUS_CLASS[status]||"st-new");s.textContent=status;return s}
+function filtered(){
+  const q=$("#q").value.toLowerCase().trim(), t=$("#fType").value, st=$("#fStatus").value;
+  return leads.filter(l=>(!t||clean(l.Type)===t)&&(!st||(clean(l.Status)||"New")===st)&&
+    (!q||[l.Name,l.Email,l.Phone,l.Areas,l["Home to sell"],l.Address,l.Message].map(clean).join(" ").toLowerCase().includes(q)));
+}
+function table(){
+  const body=$("#rows"); body.innerHTML="";
+  const list=filtered();
+  $("#empty").hidden=!!list.length;
+  $("#empty").innerHTML=leads.length?"<b>No matches</b>Try a different search or filter.":"<b>No leads yet</b>When someone fills out the survey or a contact form, they'll show up here.";
+  list.forEach(l=>{
+    const tr=document.createElement("tr");tr.tabIndex=0;
+    const name=document.createElement("td");name.className="name";
+    const b=document.createElement("b");b.textContent=clean(l.Name)||"No name";
+    const sp=document.createElement("span");sp.textContent=clean(l.Phone)||clean(l.Email);
+    name.append(b,sp);
+    const form=document.createElement("td");const ty=document.createElement("span");ty.className="type";ty.textContent=clean(l.Type)||"Form";form.append(ty);
+    const st=document.createElement("td");st.className="st";st.append(pill(clean(l.Status)||"New"));
+    tr.append(td(fmtDate(l.Date),"nowrap"),name,form,td(intentOf(l),"","Looking to"),
+      td(clean(l["Price range"])||clean(l["Rent budget"])||"–","nowrap","Budget"),td(clean(l.Bedrooms)||"–","","Beds"),
+      td(areasOf(l).join(", ")||clean(l["Home to sell"])||clean(l.Address)||"–","areas","Areas"),st);
+    tr.onclick=()=>openLead(l);
+    tr.onkeydown=e=>{if(e.key==="Enter")openLead(l)};
+    body.append(tr);
+  });
+}
+["#q","#fType","#fStatus"].forEach(s=>$(s).addEventListener("input",table));
+STATUSES.forEach(s=>{$("#fStatus").append(new Option(s,s));$("#dStatus").append(new Option(s,s))});
+
+/* ---------- lead drawer ---------- */
+let opener=null;
+function openLead(l){
+  current=l; opener=document.activeElement;
+  $("#dWhen").textContent=`${clean(l.Type)||"Form"} · ${fmtDate(l.Date)}`;
+  $("#dName").textContent=clean(l.Name)||"No name";
+  const acts=$("#dActions"); acts.innerHTML="";
+  const phone=clean(l.Phone).replace(/[^\d+]/g,""), email=clean(l.Email);
+  if(phone){acts.append(link("Call","tel:"+phone,"btn btn-dark"),link("Text","sms:"+phone,"btn"))}
+  if(email){acts.append(link("Email","mailto:"+email,"btn"))}
+  const dl=$("#dFields"); dl.innerHTML="";
+  DETAIL.filter(h=>h!=="Status"&&clean(l[h])).forEach(h=>{const dt=document.createElement("dt");dt.textContent=h;const dd=document.createElement("dd");dd.textContent=clean(l[h]);dl.append(dt,dd)});
+  $("#dStatus").value=clean(l.Status)||"New"; $("#dNotes").value=clean(l.Notes); $("#dSaved").textContent="";
+  $("#scrim").hidden=$("#drawer").hidden=false; $("#dClose").focus();
+}
+function link(text,href,cls){const a=document.createElement("a");a.textContent=text;a.href=href;a.className=cls;return a}
+function closeLead(){$("#scrim").hidden=$("#drawer").hidden=true;current=null;opener&&opener.focus&&opener.focus()}
+$("#dClose").onclick=closeLead; $("#scrim").onclick=closeLead;
+addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#drawer").hidden)closeLead()});
+$("#dSave").onclick=async()=>{
+  if(!current) return;
+  const status=$("#dStatus").value, notes=$("#dNotes").value;
+  $("#dSave").disabled=true; $("#dSaved").textContent="Saving…";
+  try{
+    if(!demo) await api({action:"update",key,id:current.ID,status,notes});
+    current.Status=status; current.Notes=notes; render();
+    $("#dSaved").textContent=demo?"Saved (sample only)":"Saved";
+  }catch(e){ $("#dSaved").textContent="Didn't save: "+e.message }
+  finally{ $("#dSave").disabled=false }
+};
+
+/* ---------- CSV ---------- */
+$("#csv").onclick=()=>{
+  const cols=["Date",...DETAIL,"Notes"];
+  const esc=v=>{v=clean(v);return /[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v};
+  const csv=[cols.join(","),...filtered().map(l=>cols.map(c=>esc(c==="Status"?(clean(l.Status)||"New"):l[c])).join(","))].join("\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  a.download=`leads-${new Date().toISOString().slice(0,10)}.csv`;document.body.append(a);a.click();a.remove();
+};
+
+/* ---------- sign in / out ---------- */
+function show(view){$("#loginView").hidden=view!=="login";$("#dash").hidden=view!=="dash";$("#barActions").hidden=view!=="dash";$("#demoBanner").hidden=!demo}
+function showErr(m){const e=$("#loginErr");e.textContent=m;e.hidden=false}
+function signOut(){key="";demo=false;try{localStorage.removeItem("adminKey")}catch(e){};if(location.hash==="#demo")history.replaceState(null,"",location.pathname);show("login");$("#notConnected").hidden=!!SHEET_URL}
+$("#signout").onclick=signOut;
+$("#refresh").onclick=load;
+$("#loginForm").onsubmit=async e=>{
+  e.preventDefault(); $("#loginErr").hidden=true;
+  if(!SHEET_URL){showErr("Your Google Sheet isn't connected yet. Use the sample preview below for now.");return}
+  key=$("#key").value.trim(); if(!key) return;
+  try{ const j=await api({action:"list",key}); leads=j.leads||[];
+    if($("#remember").checked){try{localStorage.setItem("adminKey",key)}catch(e){}}
+    show("dash"); render();
+  }catch(err){ showErr(/key/i.test(err.message)?"That admin key didn't work. Check it and try again.":"Couldn't reach your Google Sheet: "+err.message) }
+};
+function startDemo(){demo=true;show("dash");load()}
+$("#demoLink").onclick=e=>{e.preventDefault();history.replaceState(null,"","#demo");startDemo()};
+
+(function boot(){
+  if(location.hash==="#demo") return startDemo();
+  let saved=""; try{saved=localStorage.getItem("adminKey")||""}catch(e){}
+  if(SHEET_URL&&saved){key=saved;show("dash");load();return}
+  show("login"); $("#notConnected").hidden=!!SHEET_URL;
+})();
+
+/* ---------- sample data (shown only in the #demo preview) ---------- */
+function sample(){
+  const d=n=>new Date(Date.now()-n*36e5).toISOString();
+  const S=(h,o)=>({Date:d(h),Status:"New",ID:Math.random().toString(16).slice(2,10),...o});
+  return [
+    S(3,{Type:"Survey",Name:"Sample · Jordan Ellis",Email:"jordan@example.com",Phone:"(404) 555-0101","Looking to":"Buying a home","Price range":"$250K – $400K",Bedrooms:"3",Areas:"Smyrna, Marietta","Photo they tapped":"Classic Southern"}),
+    S(9,{Type:"Survey",Name:"Sample · Priya Raman",Email:"priya@example.com",Phone:"(678) 555-0144","Looking to":"Buying and selling","Price range":"$400K – $600K",Bedrooms:"4",Areas:"Alpharetta, Johns Creek","Home to sell":"Dunwoody","Photo they tapped":"Modern Living"}),
+    S(20,{Type:"Meeting",Name:"Sample · Marcus Hill",Email:"marcus@example.com",Phone:"(470) 555-0188","Looking to":"Buy","Preferred day":"2026-10-21","Preferred time":"Evening (5–8)","Meet by":"Phone call"}),
+    S(30,{Type:"Survey",Name:"Sample · Dana Brooks",Email:"dana@example.com",Phone:"(404) 555-0160","Looking to":"Renting","Rent budget":"$1,500 – $2,000",Bedrooms:"2",Areas:"Decatur, Atlanta",Status:"Contacted"}),
+    S(52,{Type:"Survey",Name:"Sample · Luis Ortega",Email:"luis@example.com",Phone:"(770) 555-0122","Looking to":"Buying a home","Price range":"$250K – $400K",Bedrooms:"3",Areas:"Kennesaw, Marietta, Acworth",Status:"Meeting set"}),
+    S(75,{Type:"Valuation",Name:"Sample · Grace Kim",Phone:"(678) 555-0199",Address:"Mableton",Timeline:"Within 3 months",Status:"Contacted"}),
+    S(99,{Type:"Survey",Name:"Sample · Tasha Reed",Email:"tasha@example.com",Phone:"(404) 555-0177","Looking to":"Selling my home",Bedrooms:"4","Home to sell":"East Cobb"}),
+    S(130,{Type:"Survey",Name:"Sample · Ben Carter",Email:"ben@example.com",Phone:"(470) 555-0133","Looking to":"Buying a home","Price range":"$600K – $850K",Bedrooms:"5+",Areas:"Sandy Springs, Brookhaven",Status:"Showing homes"}),
+    S(170,{Type:"Contact",Name:"Sample · Ivy Nguyen",Email:"ivy@example.com",Phone:"(770) 555-0109","Interested in":"Buying",Message:"Relocating from Charlotte in the spring.",Status:"Contacted"}),
+    S(220,{Type:"Survey",Name:"Sample · Omar Shah",Email:"omar@example.com",Phone:"(404) 555-0115","Looking to":"Buying a home","Price range":"Under $250K",Bedrooms:"2",Areas:"Smyrna",Status:"Under contract"}),
+    S(300,{Type:"Survey",Name:"Sample · Keisha Moore",Email:"keisha@example.com",Phone:"(678) 555-0150","Looking to":"Buying a home","Price range":"$400K – $600K",Bedrooms:"3",Areas:"Smyrna, Vinings",Status:"Closed"}),
+    S(360,{Type:"Survey",Name:"Sample · Ryan Cole",Email:"ryan@example.com",Phone:"(470) 555-0171","Looking to":"Renting","Rent budget":"$2,000 – $2,500",Bedrooms:"3",Areas:"Atlanta",Status:"Not a fit"})
+  ];
+}
+</script>
+</body>
+</html>
