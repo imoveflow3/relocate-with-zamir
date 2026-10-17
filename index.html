@@ -304,6 +304,11 @@
   .sv-opt[aria-pressed="true"]::after{content:"✓";color:var(--gold-dk);font-weight:600}
   .sv-opts.grid .sv-opt[aria-pressed="true"]::after{content:none}
   .sv-go{width:100%;justify-content:center;margin-top:18px}
+  .field[hidden]{display:none}
+  .sv-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .sv-chips:empty{display:none}
+  .sv-chip{border:1px solid var(--ink);background:var(--bg-2);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:.9rem;cursor:pointer}
+  .sv-chip:hover{border-color:var(--gold)}
   .sv-skip{display:block;margin:12px auto 0;border:0;background:none;color:var(--muted);font:inherit;font-size:.88rem;cursor:pointer;text-decoration:underline}
   .sv-fly{position:fixed;z-index:160;object-fit:cover;pointer-events:none;max-width:none}
   .sv-in{animation:sv-in .45s cubic-bezier(.2,.8,.2,1) both}
@@ -1077,15 +1082,33 @@ function startCarousel(PL_SLIDES){
     {id:"budget",q:"What's your price range?",when:buying,opts:["Under $250K","$250K – $400K","$400K – $600K","$600K – $850K","$850K and up","Not sure yet"]},
     {id:"rent",q:"What's your monthly rent budget?",when:a=>a.intent==="Renting",opts:["Under $1,500","$1,500 – $2,000","$2,000 – $2,500","$2,500 – $3,000","$3,000 and up"]},
     {id:"beds",q:a=>sellOnly(a)?"How many bedrooms does your home have?":"How many bedrooms do you need?",grid:true,opts:["1","2","3","4","5+"]},
-    {id:"areas",q:"Where are you looking?",sub:"Pick as many as you like.",type:"multi",when:a=>!sellOnly(a),opts:["Smyrna","Marietta","Vinings","Mableton","Atlanta","Gwinnett","Open to ideas"]},
+    {id:"areas",q:"Where are you looking?",sub:"Pick a city from the list. You can add as many as you like.",type:"areas",when:a=>!sellOnly(a)},
     {id:"address",q:"Where's the home you're selling?",sub:"A street address or just the neighborhood is fine.",type:"text",when:selling,placeholder:"123 Main St, Smyrna"},
-    {id:"timeline",q:"When are you hoping to move?",opts:["As soon as possible","In 1–3 months","In 3–6 months","6 months or more","Just exploring"]},
-    {id:"preapproved",q:"Are you pre-approved for a mortgage?",when:buying,opts:["Yes","Not yet","I'm paying cash","Not sure what that is"]},
-    {id:"relocating",q:"Are you moving from out of town?",opts:["No, I'm local","Yes, from elsewhere in Georgia","Yes, from out of state"]},
     {id:"contact",q:a=>sellOnly(a)?"Last step. Where should I send your home's value?":"Last step. Where should I send homes that fit?",sub:"I'll reach out within one business day.",type:"contact"}
   ];
-  const LABEL={intent:"Looking to",budget:"Price range",rent:"Rent budget",beds:"Bedrooms",areas:"Areas",address:"Home to sell",timeline:"Timeline",preapproved:"Pre-approved",relocating:"Relocating"};
+  const LABEL={intent:"Looking to",budget:"Price range",rent:"Rent budget",beds:"Bedrooms",areas:"Areas",address:"Home to sell"};
   let A={}, cur="intent", photo=null, opener=null;
+  const METRO={
+    "Fulton":["Atlanta","Alpharetta","Chattahoochee Hills","College Park","East Point","Fairburn","Hapeville","Johns Creek","Milton","Mountain Park","Palmetto","Roswell","Sandy Springs","South Fulton","Union City"],
+    "Cobb":["Acworth","Austell","East Cobb","Kennesaw","Mableton","Marietta","Powder Springs","Smyrna","Vinings"],
+    "DeKalb":["Avondale Estates","Brookhaven","Chamblee","Clarkston","Decatur","Doraville","Dunwoody","Lithonia","Pine Lake","Stone Mountain","Stonecrest","Tucker"],
+    "Gwinnett":["Auburn","Berkeley Lake","Buford","Dacula","Duluth","Grayson","Lawrenceville","Lilburn","Loganville","Norcross","Peachtree Corners","Snellville","Sugar Hill","Suwanee"],
+    "Cherokee":["Ball Ground","Canton","Holly Springs","Woodstock"],
+    "Forsyth":["Cumming"],
+    "Clayton":["Forest Park","Jonesboro","Lake City","Lovejoy","Morrow","Riverdale"],
+    "Henry":["Hampton","Locust Grove","McDonough","Stockbridge"],
+    "Fayette":["Fayetteville","Peachtree City","Tyrone"],
+    "Douglas":["Douglasville","Lithia Springs"],
+    "Paulding":["Dallas","Hiram"],
+    "Rockdale":["Conyers"],
+    "Newton":["Covington"],
+    "Coweta":["Newnan"],
+    "Carroll":["Carrollton","Villa Rica"],
+    "Bartow":["Cartersville"],
+    "Barrow":["Winder"],
+    "Walton":["Monroe","Social Circle"],
+    "Spalding":["Griffin"]
+  };
   const visible=()=>STEPS.filter(s=>!s.when||s.when(A));
   const val=(x)=>typeof x==="function"?x(A):x;
 
@@ -1113,6 +1136,24 @@ function startCarousel(PL_SLIDES){
       const goBtn=document.createElement("button");goBtn.type="button";goBtn.className="btn btn-dark sv-go";goBtn.textContent="Continue";
       goBtn.onclick=()=>{if(!(A[st.id]||[]).length){err.textContent="Pick at least one.";err.style.display="block";return}next()};
       body.append(box,goBtn);
+    }else if(st.type==="areas"){
+      const picked=new Set(A.areas||[]);
+      const f=document.createElement("div");f.className="field";
+      const groups=Object.entries(METRO).map(([c,list])=>`<optgroup label="${c} County">${list.map(x=>`<option>${x}</option>`).join("")}</optgroup>`).join("");
+      f.innerHTML=`<label for="sv-area">City or area</label><select id="sv-area"><option value="">Choose a city…</option><option>Anywhere in metro Atlanta</option>${groups}<option value="__other">Somewhere else (type it)</option></select>`;
+      const other=document.createElement("div");other.className="field";other.hidden=true;
+      other.innerHTML=`<label for="sv-area-other">Type the area</label><div style="display:flex;gap:8px"><input id="sv-area-other" placeholder="e.g. Grant Park"><button type="button" class="btn btn-ghost" id="sv-area-add">Add</button></div>`;
+      const chips=document.createElement("div");chips.className="sv-chips";
+      const draw=()=>{chips.innerHTML="";picked.forEach(x=>{const c=document.createElement("button");c.type="button";c.className="sv-chip";c.textContent=x+" ×";c.setAttribute("aria-label","Remove "+x);c.onclick=()=>{picked.delete(x);A.areas=[...picked];draw()};chips.append(c)})};
+      const add=x=>{x=x.trim();if(x){picked.add(x);A.areas=[...picked];draw();err.style.display="none"}};
+      const sel=f.querySelector("select");
+      sel.onchange=()=>{if(sel.value==="__other"){other.hidden=false;other.querySelector("input").focus()}else{other.hidden=true;add(sel.value)}sel.value=""};
+      const oin=other.querySelector("input");
+      other.querySelector("button").onclick=()=>{add(oin.value);oin.value="";other.hidden=true};
+      oin.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();other.querySelector("button").click()}};
+      const goBtn=document.createElement("button");goBtn.type="button";goBtn.className="btn btn-dark sv-go";goBtn.textContent="Continue";
+      goBtn.onclick=()=>{if(!picked.size){err.textContent="Choose at least one city or area.";err.style.display="block";return}next()};
+      body.append(f,other,chips,goBtn); draw();
     }else if(st.type==="text"){
       const f=document.createElement("div");f.className="field";
       f.innerHTML=`<label for="sv-${st.id}">Address or neighborhood</label><input id="sv-${st.id}" autocomplete="street-address">`;
