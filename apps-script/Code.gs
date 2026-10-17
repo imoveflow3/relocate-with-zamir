@@ -18,8 +18,9 @@ var HEADERS = [
   "Address", "Timeline", "Interested in", "Message", "Notes", "ID"
 ];
 // Security limits
-var MIN_KEY_LENGTH = 12;      // admin keys shorter than this are refused
-var MAX_FAILS = 10;           // wrong admin keys allowed per 15 minutes before lockout
+var MIN_KEY_LENGTH = 1;       // raise to 12+ if you switch to a longer admin key
+var MAX_FAILS = 5;            // wrong admin keys allowed per hour before lockout
+var LOCKOUT_SECONDS = 3600;   // how long the admin page stays locked after that
 var MAX_LEADS_PER_MIN = 20;   // flood guard for the public form endpoint
 var MAX_EMAILS_PER_DAY = 80;  // stays under Gmail's daily send quota
 
@@ -49,13 +50,13 @@ function doPost(e) {
 function checkKey_(given) {
   var cache = CacheService.getScriptCache();
   var fails = Number(cache.get("adminFails") || 0);
-  if (fails >= MAX_FAILS) return { ok: false, error: "Too many wrong tries. Wait 15 minutes and try again." };
+  if (fails >= MAX_FAILS) return { ok: false, error: "Too many wrong tries. Wait an hour and try again." };
   var real = String(prop_("ADMIN_KEY") || "");
   if (real.length < MIN_KEY_LENGTH) {
     return { ok: false, error: "Your ADMIN_KEY is too short. Set it to at least " + MIN_KEY_LENGTH + " characters in Project Settings." };
   }
   if (!sameText_(String(given || ""), real)) {
-    cache.put("adminFails", String(fails + 1), 900);
+    cache.put("adminFails", String(fails + 1), LOCKOUT_SECONDS);
     Utilities.sleep(700);
     return { ok: false, error: "Wrong admin key" };
   }
