@@ -3,3 +3,5 @@ artifact.html
 .claude/
 .vercel
 .env*
+dist/
+.firebase/
